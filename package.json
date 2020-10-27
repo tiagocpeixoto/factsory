@@ -1,5 +1,6 @@
 {
   "name": "factsory",
+  "description": "A kind of a factory library targeted to Typescript",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +11,15 @@
     "name": "Tiago da Costa Peixoto",
     "email": "tiagocpeixoto@gmail.com"
   },
+  "license": "MIT",
+  "repository": "github:tiagocpeixoto/factsory",
+  "bugs": {
+    "url": "https://github.com/tiagocpeixoto/factsory/issues"
+  },
+  "homepage": "https://github.com/tiagocpeixoto/factsory",
+  "keywords": [
+    "factory", "typescript", "pattern" ,"gof"
+  ],
   "scripts": {
     "lint": "eslint \"src/**\"",
     "prettier:write": "yarn prettier --write src/**/*.ts",
@@ -18,8 +28,6 @@
     "build": "tsc --build",
     "clean": "yarn build --clean"
   },
-  "repository": "github:tiagocpeixoto/factsory",
-  "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.19",
     "tslib": "^2.0.3"
