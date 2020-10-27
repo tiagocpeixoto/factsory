@@ -5,12 +5,12 @@ on: push
 #    branches:
 #      - master
 #      - next
-#    paths-ignore:
-#      - '**/.gitignore'
-#      - '**/.eslintrc.js'
-#      - '**/README.md'
-#      - '**/LICENSE'
-#      - '**/.prettierrc.yml'
+  paths-ignore:
+    - '**/.gitignore'
+    - '**/.eslintrc.js'
+    - '**/README.md'
+    - '**/LICENSE'
+    - '**/.prettierrc.yml'
 
 jobs:
   test:

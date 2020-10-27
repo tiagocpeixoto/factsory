@@ -1,5 +1,6 @@
 ## factsory
 
+[![npm version](https://badge.fury.io/js/factsory.svg)](https://badge.fury.io/js/factsory)
 [![GitHub version](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory.svg)](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory)
 ![validate](https://github.com/tiagocpeixoto/factsory/workflows/validate/badge.svg)
 
