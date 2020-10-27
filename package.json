@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/tiagocpeixoto/factsory",
   "keywords": [
-    "factory", "typescript", "pattern" ,"gof"
+    "typescript",
+    "factory", "factory-pattern",
+    "gof", "gof-pattern", "gof-factory", "gof-factory-pattern",
+    "pattern", "pattern-library", "pattern-lib"
   ],
   "scripts": {
     "lint": "eslint \"src/**\"",
