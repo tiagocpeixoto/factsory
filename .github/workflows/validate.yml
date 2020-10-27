@@ -3,7 +3,7 @@ name: validate
 on:
   push:
     branches:
-      - master
+      - main
       - next
     paths-ignore:
       - '**/.gitignore'
