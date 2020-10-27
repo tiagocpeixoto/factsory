@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+	/* child packages configuration must have these attributes */
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+
+    /* Basic Options */
+    "target": "es2020",
+    "lib": ["es2020"],
+    "removeComments": true,
+
+    /* Module Options */
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    /* Check Options */
+    "strict": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "noImplicitReturns": true,
+
+    /* Javascript options */
+    "allowJs": true,
+    "checkJs": true,
+
+    /* Typescript options */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    /* Advanced Options */
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    // "importHelpers": true
+    "paths": {
+      "@root/*": ["src/*"]
+    }
+  },
+  /* child packages configuration must have these attributes */
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    // see jest config
+    "**/(__tests__|__mocks__)/**/*.[jt]s?(x)",
+    "**/?(*.)+(spec|int-spec|test|unit|it|e2e).[tj]s?(x)"
+  ]
+}
