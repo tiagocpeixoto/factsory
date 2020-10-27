@@ -12,7 +12,7 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaVersion: 2020,
+    ecmaVersion: 2019,
     sourceType: "module",
   },
   plugins: ["@typescript-eslint", "jest"],
@@ -25,6 +25,7 @@ module.exports = {
     "prettier/@typescript-eslint",
   ],
   rules: {
+    '@typescript-eslint/no-var-requires': "warn",
     "jest/no-standalone-expect": "warn",
     "jest/no-conditional-expect": "warn",
     "jest/no-export": "warn",

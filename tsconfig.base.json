@@ -6,8 +6,8 @@
     "outDir": "dist",
 
     /* Basic Options */
-    "target": "es2020",
-    "lib": ["es2020"],
+    "target": "es2019",
+    "lib": ["es2019"],
     "removeComments": true,
 
     /* Module Options */
