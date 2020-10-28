@@ -7,6 +7,13 @@
 A kind of factory pattern library targeted to Typescript.
 
 
+## Topics
+
+[Installation](#installation)  
+[How to use](#how-to-use)  
+[License](#license)  
+
+
 ## Installation
 
 To install **Factsory**, type the following:
@@ -20,7 +27,7 @@ npm install factsory
 - with YARN:
 
 ```
-npm add factsory
+yarn add factsory
 ```
 
 
