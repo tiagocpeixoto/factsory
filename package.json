@@ -1,7 +1,7 @@
 {
   "name": "factsory",
   "description": "A kind of a factory library targeted to Typescript",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -19,9 +19,15 @@
   "homepage": "https://github.com/tiagocpeixoto/factsory",
   "keywords": [
     "typescript",
-    "factory", "factory-pattern",
-    "gof", "gof-pattern", "gof-factory", "gof-factory-pattern",
-    "pattern", "pattern-library", "pattern-lib"
+    "factory",
+    "factory-pattern",
+    "gof",
+    "gof-pattern",
+    "gof-factory",
+    "gof-factory-pattern",
+    "pattern",
+    "pattern-library",
+    "pattern-lib"
   ],
   "scripts": {
     "lint": "eslint \"src/**\"",
