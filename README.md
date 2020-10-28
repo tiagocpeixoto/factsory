@@ -69,7 +69,7 @@ yarn add factsory
    Container.self.register(MyFactory);
    ```
 
-1. registering a named factory method:
+1. registering a named factory create function:
 
    ```
    Container.self.registerNamed("MyFactory", () => "value");
