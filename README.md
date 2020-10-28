@@ -63,7 +63,7 @@ yarn add factsory
 
 - A factory can be registered after its creation, which can be done in two ways:
 
-1. registering a factory class that extends `DefaultFactory` class or implements `Factory` interface (see "Factory definition" section):
+1. registering a factory class that extends `DefaultFactory` class or implements `Factory` interface (see [Factory definition](#factory-definition) section):
 
    ```
    Container.self.register(MyFactory);
