@@ -1,4 +1,4 @@
-import { LazyInstance } from "@root/lazy-instance";
+import { LazyInstance } from "..";
 import * as faker from "faker";
 
 describe("lazy-instance tests", function () {

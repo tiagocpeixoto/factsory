@@ -1,6 +1,6 @@
 import faker from "faker";
-import { DefaultFactory, Factory } from "@root/factory";
-import { Container } from "@root/container";
+import { DefaultFactory, Factory } from "..";
+import { Container } from "..";
 
 describe("Container tests", function () {
   describe("register item tests", function () {

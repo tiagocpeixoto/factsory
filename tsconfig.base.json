@@ -35,11 +35,11 @@
 
     /* Advanced Options */
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
     // "importHelpers": true
-    "paths": {
-      "@root/*": ["src/*"]
-    }
+    // "paths": {
+    //   "@root/*": ["src/*"]
+    // }
   },
   /* child packages configuration must have these attributes */
   "include": [

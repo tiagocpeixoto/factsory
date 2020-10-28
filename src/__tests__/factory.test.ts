@@ -1,4 +1,4 @@
-import { DefaultFactory, Factory } from "@root/factory";
+import { DefaultFactory, Factory } from "..";
 
 describe("factory tests", function () {
   describe("readme tests", function () {

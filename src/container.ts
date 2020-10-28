@@ -1,4 +1,4 @@
-import { LazyInstance } from "@root/lazy-instance";
+import { LazyInstance } from ".";
 
 export type ContainerItem = unknown;
 
