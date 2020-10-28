@@ -29,6 +29,7 @@
     "prettier:check": "yarn prettier --check src/**/*.ts",
     "test": "jest --config=jest.config.js --detectOpenHandles",
     "test:clear": "jest --clearCache",
+    "validate": "yarn test && yarn lint && yarn prettier:check",
     "build": "tsc --build",
     "clean": "yarn build --clean"
   },
