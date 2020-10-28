@@ -2,16 +2,17 @@ import { LazyInstance } from ".";
 
 export type ContainerItem = unknown;
 
-type ContainerItemConstructor<T extends ContainerItem> = new (
-  ...params: unknown[]
+type ContainerItemConstructor<T extends ContainerItem, P = unknown> = new (
+  param: P
 ) => T;
 
-export type ContainerItemCreator<T extends ContainerItem> = (
-  ...params: unknown[]
+export type ContainerItemCreator<T extends ContainerItem, P = unknown> = (
+  param: P
 ) => T;
 
-export type ItemCreationOptions = {
-  singleton: boolean;
+export type ItemCreationOptions<P = unknown> = {
+  singleton?: boolean;
+  creationParam?: P;
 };
 
 export const defaultItemCreationOptions: ItemCreationOptions = {
@@ -26,9 +27,9 @@ export const defaultContainerConfig: ContainerConfig = {
   checkExists: false,
 };
 
-type ContainerItemMeta<T extends ContainerItem> = {
-  creator: ContainerItemCreator<T>;
-  options: ItemCreationOptions;
+type ContainerItemMeta<T extends ContainerItem, P = unknown> = {
+  creator: ContainerItemCreator<T, P>;
+  options?: ItemCreationOptions<P>;
   instance?: T;
 };
 
@@ -68,25 +69,25 @@ export class Container {
     }
   }
 
-  register<T extends ContainerItem>(
-    creator: ContainerItemConstructor<T>,
-    options?: ItemCreationOptions
+  register<T extends ContainerItem, P>(
+    creator: ContainerItemConstructor<T, P>,
+    options?: ItemCreationOptions<P>
   ): string {
     return this.registerNamed(
       creator.name,
-      () => new creator(options),
+      (param: P) => new creator(param),
       options
     );
   }
 
-  unregister<T extends ContainerItem>(itemConstructor: {
-    new (...params: unknown[]): T;
-  }): string {
+  unregister<T extends ContainerItem, P>(
+    itemConstructor: ContainerItemConstructor<T, P>
+  ): string {
     return this.unregisterNamed(itemConstructor.name);
   }
 
-  get<T extends ContainerItem>(
-    itemConstructor: ContainerItemConstructor<T>,
+  get<T extends ContainerItem, P>(
+    itemConstructor: ContainerItemConstructor<T, P>,
     validate?: boolean
   ): T | null {
     const item = this.getNamed(itemConstructor.name, validate);
@@ -98,18 +99,19 @@ export class Container {
     return null;
   }
 
-  registerNamed<T extends ContainerItem>(
+  registerNamed<T extends ContainerItem, P>(
     name: string,
-    creator: ContainerItemCreator<T>,
-    options: ItemCreationOptions = defaultItemCreationOptions
+    creator: ContainerItemCreator<T, P>,
+    options?: ItemCreationOptions<P>
   ): string {
-    if (options.singleton && this.items[name]) {
+    const actualOptions = { ...defaultItemCreationOptions, ...options };
+    if (this.items[name]) {
       throw new Error(`Item ${name} already registered`);
     }
 
     this.items[name] = {
-      creator,
-      options,
+      creator: creator as ContainerItemCreator<T>,
+      options: actualOptions,
     };
     return name;
   }
@@ -137,17 +139,24 @@ export class Container {
     return null;
   }
 
-  private static instantiate(
-    meta: ContainerItemMeta<ContainerItem>
+  private static instantiate<T extends ContainerItem>(
+    meta: ContainerItemMeta<T>
   ): ContainerItem {
     if (!meta) {
       throw new Error("Invalid item metadata ");
     }
 
-    if (meta.options.singleton && meta.instance) {
+    if (meta.options?.singleton && meta.instance) {
       return meta.instance;
     }
 
-    return (meta.instance = meta.creator(meta.options));
+    meta.instance = meta.creator(meta.options?.creationParam);
+
+    if (meta.instance && meta.options?.singleton) {
+      // TODO: does this statement free up memory?
+      meta.options.creationParam = undefined;
+    }
+
+    return meta.instance;
   }
 }

@@ -1,5 +1,5 @@
 export interface Factory<T = unknown, O = unknown> {
-  create(params?: { dependencies?: string[]; options?: O }): T;
+  create(params?: O): T;
 }
 
 export type FactoryType<T = unknown, O = unknown> = Factory<T, O>;

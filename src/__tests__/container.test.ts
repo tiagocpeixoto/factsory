@@ -3,14 +3,15 @@ import { DefaultFactory, Factory } from "..";
 import { Container } from "..";
 
 describe("Container tests", function () {
-  describe("register item tests", function () {
-    const name = "TestFactory";
+  describe("register item without params tests", function () {
+    const value = faker.lorem.word();
     class TestFactory implements Factory {
       create(): string {
         return name;
       }
     }
-    const factory = new TestFactory();
+    const name = TestFactory.name;
+    // const factory = new TestFactory();
 
     it("test register item", function () {
       expect(Container.self.register(TestFactory)).toEqual(name);
@@ -34,12 +35,73 @@ describe("Container tests", function () {
     });
 
     it("test register named item", function () {
-      expect(Container.self.registerNamed(name, () => factory)).toEqual(name);
+      expect(Container.self.registerNamed(name, () => value)).toEqual(name);
+      expect(() => Container.self.registerNamed(name, () => value)).toThrow(
+        "already registered"
+      );
+
+      expect(Container.self.getNamed(name)).toBe(value);
+
+      expect(Container.self.unregisterNamed(name)).toEqual(name);
+      expect(() => Container.self.unregisterNamed(name)).toThrow(
+        "not registered"
+      );
+
+      expect(Container.self.getNamed(name)).toBeFalsy();
+
+      expect(() => Container.self.getNamed(name, true)).toThrow(
+        "not registered"
+      );
+    });
+  });
+
+  describe("register item with params tests", function () {
+    const param = faker.lorem.word();
+    class TestParamsFactory implements Factory<unknown, string> {
+      private readonly value?: string;
+      constructor(params?: string) {
+        this.value = params;
+      }
+      create(): string | undefined {
+        return this.value;
+      }
+    }
+    const name = TestParamsFactory.name;
+    const factory = new TestParamsFactory(faker.lorem.word());
+
+    it("test register item", function () {
+      expect(
+        Container.self.register(TestParamsFactory, { creationParam: param })
+      ).toEqual(name);
+      expect(() => Container.self.register(TestParamsFactory)).toThrow(
+        "already registered"
+      );
+
+      expect(Container.self.get(TestParamsFactory)?.create()).toMatch(param);
+
+      expect(Container.self.unregister(TestParamsFactory)).toEqual(name);
+      expect(() => Container.self.unregister(TestParamsFactory)).toThrow(
+        "not registered"
+      );
+
+      expect(Container.self.get(TestParamsFactory)).toBeFalsy();
+
+      expect(() => Container.self.get(TestParamsFactory, true)).toThrow(
+        "not registered"
+      );
+    });
+
+    it("test register named item", function () {
+      expect(
+        Container.self.registerNamed(name, (param) => param + "!", {
+          creationParam: param,
+        })
+      ).toEqual(name);
       expect(() => Container.self.registerNamed(name, () => factory)).toThrow(
         "already registered"
       );
 
-      expect(Container.self.getNamed(name)).toBe(factory);
+      expect(Container.self.getNamed(name)).toMatch(param + "!");
 
       expect(Container.self.unregisterNamed(name)).toEqual(name);
       expect(() => Container.self.unregisterNamed(name)).toThrow(
@@ -56,7 +118,11 @@ describe("Container tests", function () {
 
   describe("Container singleton tests", function () {
     class SingletonFactory implements Factory {
-      private readonly value = faker.lorem.word();
+      private readonly value: string;
+      constructor() {
+        this.value = faker.lorem.word();
+      }
+
       create(): string {
         return this.value;
       }
@@ -75,38 +141,42 @@ describe("Container tests", function () {
 
       const factory2 = Container.self.get(SingletonFactory);
       expect(factory2).toBeTruthy();
-      expect(factory2).toBe(factory1);
+      expect(factory2).toEqual(factory1);
 
       const value2 = factory2?.create();
-      expect(value2).toBe(value1);
+      expect(value2).toEqual(value1);
     });
   });
 
   describe("Container non singleton tests", function () {
-    class SingletonFactory implements Factory {
-      private readonly value = faker.lorem.word();
+    class NonSingletonFactory implements Factory {
+      private readonly value: string;
+      constructor() {
+        this.value = faker.lorem.word();
+      }
+
       create(): string {
         return this.value;
       }
     }
 
     beforeAll(function () {
-      Container.self.register(SingletonFactory, { singleton: false });
+      Container.self.register(NonSingletonFactory, { singleton: false });
     });
 
     it("test nom singleton creation", function () {
-      const factory1 = Container.self.get(SingletonFactory);
+      const factory1 = Container.self.get(NonSingletonFactory);
       expect(factory1).toBeTruthy();
 
       const value1 = factory1?.create();
       expect(value1).toBeTruthy();
 
-      const factory2 = Container.self.get(SingletonFactory);
+      const factory2 = Container.self.get(NonSingletonFactory);
       expect(factory2).toBeTruthy();
-      expect(factory2).not.toBe(factory1);
+      expect(factory2).not.toEqual(factory1);
 
       const value2 = factory2?.create();
-      expect(value2).not.toBe(value1);
+      expect(value2).not.toEqual(value1);
     });
   });
 
