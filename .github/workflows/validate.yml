@@ -50,6 +50,14 @@ jobs:
         run: |
           yarn --frozen-lockfile
 
-      - name: Test
-        run: |
-          yarn validate
+      - name: Validate
+        run:   |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+               yarn validate
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+               yarn test
+          else
+               echo "$RUNNER_OS not supported"
+               exit 1
+          fi
+        shell: bash
