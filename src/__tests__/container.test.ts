@@ -1,15 +1,22 @@
 import faker from "faker";
-import { DefaultFactory, Factory } from "..";
-import { Container } from "..";
+import {
+  Container,
+  ContainerItemCreationArguments,
+  ContainerItemCreationDependencies,
+  DefaultFactory,
+  Factory,
+} from "..";
 
 describe("Container tests", function () {
   describe("register item without params tests", function () {
     const value = faker.lorem.word();
+
     class TestFactory implements Factory {
       create(): string {
         return name;
       }
     }
+
     const name = TestFactory.name;
     // const factory = new TestFactory();
 
@@ -57,21 +64,25 @@ describe("Container tests", function () {
 
   describe("register item with params tests", function () {
     const param = faker.lorem.word();
+
     class TestParamsFactory implements Factory<unknown, string> {
       private readonly value?: string;
-      constructor(params?: string) {
-        this.value = params;
+
+      constructor(params?: ContainerItemCreationArguments<string>) {
+        this.value = params?.args;
       }
+
       create(): string | undefined {
         return this.value;
       }
     }
+
     const name = TestParamsFactory.name;
-    const factory = new TestParamsFactory(faker.lorem.word());
+    const factory = new TestParamsFactory({ args: faker.lorem.word() });
 
     it("test register item", function () {
       expect(
-        Container.self.register(TestParamsFactory, { creationParam: param })
+        Container.self.register(TestParamsFactory, { args: param })
       ).toEqual(name);
       expect(() => Container.self.register(TestParamsFactory)).toThrow(
         "already registered"
@@ -93,9 +104,14 @@ describe("Container tests", function () {
 
     it("test register named item", function () {
       expect(
-        Container.self.registerNamed(name, (param) => param + "!", {
-          creationParam: param,
-        })
+        Container.self.registerNamed(
+          name,
+          (params?: ContainerItemCreationArguments<string>) =>
+            params?.args + "!",
+          {
+            args: param,
+          }
+        )
       ).toEqual(name);
       expect(() => Container.self.registerNamed(name, () => factory)).toThrow(
         "already registered"
@@ -119,6 +135,7 @@ describe("Container tests", function () {
   describe("Container singleton tests", function () {
     class SingletonFactory implements Factory {
       private readonly value: string;
+
       constructor() {
         this.value = faker.lorem.word();
       }
@@ -151,6 +168,7 @@ describe("Container tests", function () {
   describe("Container non singleton tests", function () {
     class NonSingletonFactory implements Factory {
       private readonly value: string;
+
       constructor() {
         this.value = faker.lorem.word();
       }
@@ -198,8 +216,57 @@ describe("Container tests", function () {
     });
   });
 
+  describe("Container with dependencies tests", function () {
+    class MyFactoryDependency implements Factory<string> {
+      create(): string {
+        return "MyFactoryDependency-value";
+      }
+    }
+
+    class MyFactoryDependant implements Factory<string> {
+      protected readonly myFactoryDependency: MyFactoryDependency;
+
+      constructor(
+        params?: ContainerItemCreationDependencies<{
+          MyFactoryDependency: MyFactoryDependency;
+        }>
+      ) {
+        if (params?.dependencies) {
+          this.myFactoryDependency = params.dependencies.MyFactoryDependency;
+        } else {
+          throw new Error("Invalid dependencies");
+        }
+
+        if (!this.myFactoryDependency) {
+          throw new Error("Invalid MyFactoryDependency dependency");
+        }
+      }
+
+      create(): string {
+        return "MyFactory-value";
+      }
+
+      get dep(): MyFactoryDependency {
+        return this.myFactoryDependency;
+      }
+    }
+
+    it("test register item class", function () {
+      Container.self.register(MyFactoryDependency);
+      Container.self.register(MyFactoryDependant, {
+        dependencies: ["MyFactoryDependency"],
+      });
+      expect(Container.self.get(MyFactoryDependency)).toBeTruthy();
+      expect(Container.self.get(MyFactoryDependant)).toBeTruthy();
+      expect(Container.self.get(MyFactoryDependant)?.dep).toBe(
+        Container.self.get(MyFactoryDependency)
+      );
+    });
+  });
+
   describe("readme tests", function () {
     const factoryName = faker.lorem.word();
+
     class MyFactory extends DefaultFactory {
       instantiate(): unknown {
         return "value";

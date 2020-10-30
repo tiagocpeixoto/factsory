@@ -1,21 +1,57 @@
 import { LazyInstance } from ".";
 
-export type ContainerItem = unknown;
+export class ContainerItemNotFoundError extends Error {
+  constructor(public readonly containerItemName: string, message?: string) {
+    super(message);
+    // see: www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+    this.name = ContainerItemNotFoundError.name; // stack traces display correctly now
+  }
+}
 
-type ContainerItemConstructor<T extends ContainerItem, P = unknown> = new (
-  param: P
-) => T;
+export type ContainerItemType = unknown;
 
-export type ContainerItemCreator<T extends ContainerItem, P = unknown> = (
-  param: P
-) => T;
+export type DependenciesType = Record<string, unknown>;
 
-export type ItemCreationOptions<P = unknown> = {
-  singleton?: boolean;
-  creationParam?: P;
+export type ArgumentsType = unknown;
+
+export type ContainerItemCreationParameters<
+  D extends DependenciesType = DependenciesType,
+  A extends ArgumentsType = ArgumentsType
+> = {
+  dependencies?: D;
+  args?: A;
 };
 
-export const defaultItemCreationOptions: ItemCreationOptions = {
+export type ContainerItemCreationDependencies<
+  D extends DependenciesType = DependenciesType
+> = ContainerItemCreationParameters<D, never>;
+
+export type ContainerItemCreationArguments<
+  A extends ArgumentsType = ArgumentsType
+> = ContainerItemCreationParameters<never, A>;
+
+export type ContainerItemConstructor<
+  T extends ContainerItemType,
+  D extends DependenciesType = DependenciesType,
+  A extends ArgumentsType = ArgumentsType
+> = new (params?: ContainerItemCreationParameters<D, A>) => T;
+
+export type ContainerItemCreator<
+  T extends ContainerItemType,
+  D extends DependenciesType = DependenciesType,
+  A extends ArgumentsType = ArgumentsType
+> = (params?: ContainerItemCreationParameters<D, A>) => T;
+
+export type ContainerItemRegistrationOptions<
+  A extends ArgumentsType = ArgumentsType
+> = {
+  singleton?: boolean;
+  dependencies?: string[];
+  args?: A;
+};
+
+export const defaultItemRegistrationOptions: ContainerItemRegistrationOptions = {
   singleton: true,
 };
 
@@ -27,9 +63,13 @@ export const defaultContainerConfig: ContainerConfig = {
   checkExists: false,
 };
 
-type ContainerItemMeta<T extends ContainerItem, P = unknown> = {
-  creator: ContainerItemCreator<T, P>;
-  options?: ItemCreationOptions<P>;
+type ContainerItemMeta<
+  T extends ContainerItemType,
+  D extends DependenciesType = DependenciesType,
+  A extends ArgumentsType = ArgumentsType
+> = {
+  creator: ContainerItemCreator<T, D, A>;
+  options?: ContainerItemRegistrationOptions<A>;
   instance?: T;
 };
 
@@ -42,7 +82,7 @@ export class Container {
   );
 
   readonly items: {
-    [k: string]: ContainerItemMeta<ContainerItem> | undefined;
+    [k: string]: ContainerItemMeta<ContainerItemType> | undefined;
   } = {};
   readonly config: ContainerConfig = defaultContainerConfig;
 
@@ -58,10 +98,10 @@ export class Container {
     this.config.checkExists = config.checkExists;
   }
 
-  registerAll<T extends ContainerItem>(
+  registerAll<T extends ContainerItemType, A extends ArgumentsType>(
     items: {
       creator: ContainerItemConstructor<T>;
-      options?: ItemCreationOptions;
+      options?: ContainerItemRegistrationOptions<A>;
     }[]
   ): void {
     for (const item of items) {
@@ -69,25 +109,35 @@ export class Container {
     }
   }
 
-  register<T extends ContainerItem, P>(
-    creator: ContainerItemConstructor<T, P>,
-    options?: ItemCreationOptions<P>
+  register<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
+    creator: ContainerItemConstructor<T, D, A>,
+    options?: ContainerItemRegistrationOptions<A>
   ): string {
     return this.registerNamed(
       creator.name,
-      (param: P) => new creator(param),
+      (params?: ContainerItemCreationParameters<D, A>) => new creator(params),
       options
     );
   }
 
-  unregister<T extends ContainerItem, P>(
-    itemConstructor: ContainerItemConstructor<T, P>
-  ): string {
+  unregister<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(itemConstructor: ContainerItemConstructor<T, D, A>): string {
     return this.unregisterNamed(itemConstructor.name);
   }
 
-  get<T extends ContainerItem, P>(
-    itemConstructor: ContainerItemConstructor<T, P>,
+  get<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
+    itemConstructor: ContainerItemConstructor<T, D, A>,
     validate?: boolean
   ): T | null {
     const item = this.getNamed(itemConstructor.name, validate);
@@ -99,12 +149,16 @@ export class Container {
     return null;
   }
 
-  registerNamed<T extends ContainerItem, P>(
+  registerNamed<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
     name: string,
-    creator: ContainerItemCreator<T, P>,
-    options?: ItemCreationOptions<P>
+    creator: ContainerItemCreator<T, D, A>,
+    options?: ContainerItemRegistrationOptions<A>
   ): string {
-    const actualOptions = { ...defaultItemCreationOptions, ...options };
+    const actualOptions = { ...defaultItemRegistrationOptions, ...options };
     if (this.items[name]) {
       throw new Error(`Item ${name} already registered`);
     }
@@ -124,11 +178,14 @@ export class Container {
     throw new Error(`Item ${name} not registered`);
   }
 
-  getNamed(name: string, checkExists?: boolean): ContainerItem | null {
+  getNamed<T extends ContainerItemType>(
+    name: string,
+    checkExists?: boolean
+  ): T | null {
     const meta = this.items[name];
 
     if (meta) {
-      return Container.instantiate(meta);
+      return this.instantiate(meta) as T;
     }
 
     checkExists ??= this.config.checkExists;
@@ -139,9 +196,24 @@ export class Container {
     return null;
   }
 
-  private static instantiate<T extends ContainerItem>(
+  private getNamedAll(names: string[]): Record<string, unknown> {
+    const namedAll: Record<string, unknown> = {};
+
+    names.forEach((name) => {
+      const named = this.getNamed(name);
+      if (named) {
+        namedAll[name] = named;
+      } else {
+        namedAll[name] = new ContainerItemNotFoundError(name);
+      }
+    });
+
+    return namedAll;
+  }
+
+  private instantiate<T extends ContainerItemType>(
     meta: ContainerItemMeta<T>
-  ): ContainerItem {
+  ): ContainerItemType {
     if (!meta) {
       throw new Error("Invalid item metadata ");
     }
@@ -150,11 +222,18 @@ export class Container {
       return meta.instance;
     }
 
-    meta.instance = meta.creator(meta.options?.creationParam);
+    const deps = meta.options?.dependencies
+      ? this.getNamedAll(meta.options.dependencies)
+      : undefined;
+
+    meta.instance = meta.creator({
+      dependencies: deps,
+      args: meta.options?.args,
+    });
 
     if (meta.instance && meta.options?.singleton) {
       // TODO: does this statement free up memory?
-      meta.options.creationParam = undefined;
+      meta.options.args = undefined;
     }
 
     return meta.instance;
