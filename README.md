@@ -3,6 +3,8 @@
 [![npm version](https://badge.fury.io/js/factsory.svg)](https://badge.fury.io/js/factsory)
 [![GitHub version](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory.svg)](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory)
 ![validate](https://github.com/tiagocpeixoto/factsory/workflows/validate/badge.svg)
+![dependencies](https://david-dm.org/tiagocpeixoto/factsory.svg)
+![devDependencies](https://david-dm.org/tiagocpeixoto/factsory/dev-status.svg)
 
 A kind of factory and DI patterns library targeted to Typescript.
 
@@ -20,13 +22,13 @@ To install **Factsory**, type the following:
 
 - with NPM:
 
-```
+``` bash
 npm install factsory
 ```
 
 - with YARN:
 
-```
+``` bash
 yarn add factsory
 ```
 
@@ -40,7 +42,7 @@ yarn add factsory
 
 1. extending the `DefaultFactory` class:
 
-    ```
+    ``` ts
       class MyFactory extends DefaultFactory<string> {
         instantiate(): unknown {
           return "value";
@@ -50,7 +52,7 @@ yarn add factsory
 
 1. implementing the `Factory` interface:
 
-   ```
+   ``` ts
       class MyFactory implements Factory<string> {
         create(): string {
           return "value";
@@ -65,19 +67,19 @@ yarn add factsory
 
 1. registering a class (e.g. a factory class - see [Factory definition](#factory-definition) section):
 
-   ```
+   ``` ts
    Container.self.register(MyFactory);
    ```
 
 1. registering a named creation function:
 
-   ```
+   ``` ts
    Container.self.registerNamed("MyFactory", () => "value");
    ```
    
 - It's also possible to define dependencies, which will be injected during the object creation:
  
-   ```
+   ``` ts
     // the dependency
     class MyFactory extends DefaultFactory<string> {
       instantiate(): string {
@@ -131,13 +133,13 @@ yarn add factsory
 
 1. If it is a class, it can be claimed by the `Container.self.get` method:
 
-   ```
+   ``` ts
    Container.self.get(MyFactory);
    ```
 
 1. If it's a named creation function, it can be claimed by the `Container.self.getNamed` method:
 
-   ```
+   ``` ts
    Container.self.getNamed("MyFactory");
    ```
 
@@ -146,7 +148,7 @@ yarn add factsory
 
 - It's possible to use the `LazyInstance` class to lazy initialize an object:
 
-    ```
+    ``` ts
     let value = "";
 
     const lazyInstance = new LazyInstance(() => (value = "initialized"));

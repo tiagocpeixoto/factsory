@@ -1,6 +1,19 @@
-const { jsWithTs } = require("ts-jest/presets");
+import type { Config } from "@jest/types";
+const { jsWithTs: tsjPreset } = require("ts-jest/presets");
 
-module.exports = {
+const config: Config.InitialOptions = {
+  collectCoverage: true,
+  collectCoverageFrom: ["src/**/*.ts", "!src/**/__tests__/*"],
+  // coverageDirectory: "<rootDir>/coverage/",
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+
   // Automatically clear mock calls and instances between every test
   clearMocks: true,
 
@@ -29,15 +42,19 @@ module.exports = {
   // The glob patterns Jest uses to detect test files
   testMatch: [
     // see tsconfig
-    "**/__tests__/**/*.[jt]s?(x)",
+    // "**/__tests__/**/*.[jt]s?(x)",
     "**/?(*.)+(spec|int-spec|test|unit|it|e2e).[tj]s?(x)",
   ],
 
   // A map from regular expressions to paths to transformers
   transform: {
-    ...jsWithTs.transform,
+    ...tsjPreset.transform,
   },
+
+  // preset: "ts-jest",
 
   // Indicates whether each individual test should be reported during the run
   verbose: true,
 };
+
+export default config;

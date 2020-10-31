@@ -2,10 +2,10 @@
   "name": "factsory",
   "description": "A kind of a factory library targeted to Typescript",
   "version": "0.4.2",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/src/**/*"
   ],
   "author": {
     "name": "Tiago da Costa Peixoto",
@@ -33,7 +33,7 @@
     "lint": "eslint \"src/**\"",
     "prettier:write": "yarn prettier --write src/**/*.ts",
     "prettier:check": "yarn prettier --check src/**/*.ts",
-    "test": "jest --config=jest.config.js --detectOpenHandles",
+    "test": "jest --config=jest.config.ts --detectOpenHandles",
     "test:clear": "jest --clearCache",
     "validate": "yarn test && yarn lint && yarn prettier:check",
     "build": "tsc --build",

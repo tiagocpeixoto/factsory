@@ -1,4 +1,4 @@
-const config = require("./jest.config.base");
+import config from "./jest.config.base";
 const pack = require("./package.json");
 
 module.exports = Object.assign(Object.create(null), config, {
