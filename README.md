@@ -41,7 +41,7 @@ yarn add factsory
 1. extending the `DefaultFactory` class:
 
     ```
-      class MyFactory extends DefaultFactory {
+      class MyFactory extends DefaultFactory<string> {
         instantiate(): unknown {
           return "value";
         }
@@ -59,26 +59,75 @@ yarn add factsory
    ```
 
 
-### Container registering
+### Container registration
 
-- A factory can be registered after its creation, which can be done in two ways:
+- A class or almost any other object can be registered on the Container, which can be done in two ways:
 
-1. registering a factory class that extends `DefaultFactory` class or implements `Factory` interface (see [Factory definition](#factory-definition) section):
+1. registering a class (e.g. a factory class - see [Factory definition](#factory-definition) section):
 
    ```
    Container.self.register(MyFactory);
    ```
 
-1. registering a named factory create function:
+1. registering a named creation function:
 
    ```
    Container.self.registerNamed("MyFactory", () => "value");
    ```
+   
+- It's also possible to define dependencies, which will be injected during the object creation:
+ 
+   ```
+    // the dependency
+    class MyFactory extends DefaultFactory<string> {
+      instantiate(): string {
+        return "aValue";
+      }
+    }
+  
+    // the target of the dependency injection
+    class MyFactoryWithDependencies extends DefaultFactory<string> {
+      protected readonly myFactory: MyFactory;
 
+      constructor(
+        params?: ContainerItemCreationDependencies<{
+          MyFactory: MyFactory;
+        }>
+      ) {
+        super();
+        if (params?.dependencies) {
+          this.myFactory = params.dependencies.MyFactory;
+        } else {
+          throw new Error("Invalid dependencies");
+        }
 
-### Factory claim
+        if (!this.myFactory) {
+          throw new Error("Invalid MyFactory dependency");
+        }
+      }
+  
+      get dep(): MyFactory {
+        return this.myFactory;
+      }
 
-- After registering the factory, it can also be claimed in two ways: 
+      instantiate(): string {
+        return "MyuFactoryWithDependencies";
+      }
+    }  
+  
+    // registering objects
+    Container.self.register(MyFactory);
+    Container.self.register(MyFactoryWithDependencies, {
+      dependencies: [MyFactory],
+    });
+  
+    // will print 'aValue'
+    console.log(Container.self.get(MyFactoryWithDependencies)?.dep.create());
+   ```
+
+### Object claim from Container
+
+- After registering a class or a named creation function, it can also be claimed in two ways: 
 
 1. If it is a class, it can be claimed by the `Container.self.get` method:
 
@@ -86,7 +135,7 @@ yarn add factsory
    Container.self.get(MyFactory);
    ```
 
-1. If it isn't a class, it can be claimer be the `Container.self.getNamed` method:
+1. If it's a named creation function, it can be claimed by the `Container.self.getNamed` method:
 
    ```
    Container.self.getNamed("MyFactory");

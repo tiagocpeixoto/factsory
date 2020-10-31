@@ -3,7 +3,6 @@ import {
   Container,
   ContainerItemCreationArguments,
   ContainerItemCreationDependencies,
-  DefaultFactory,
   Factory,
 } from "..";
 
@@ -339,36 +338,6 @@ describe("Container tests", function () {
       expect(Container.self.get(MyFactoryNamedDependant)?.create()).toBe(
         myFactoryNamedDependantValue
       );
-    });
-  });
-
-  describe("readme tests", function () {
-    const factoryName = faker.lorem.word();
-
-    class MyFactory extends DefaultFactory {
-      instantiate(): unknown {
-        return "value";
-      }
-    }
-
-    it("test register item class", function () {
-      Container.self.register(MyFactory);
-      expect(Container.self.get(MyFactory)).toBeTruthy();
-    });
-
-    it("test register named factory method", function () {
-      Container.self.registerNamed(factoryName, () => "value");
-      expect(Container.self.getNamed(factoryName)).toBeTruthy();
-    });
-
-    it("test claim class item", function () {
-      const item = Container.self.get(MyFactory);
-      expect(item).toBeTruthy();
-    });
-
-    it("test claim a item that is not a class", function () {
-      const item = Container.self.getNamed(factoryName);
-      expect(item).toBeTruthy();
     });
   });
 });

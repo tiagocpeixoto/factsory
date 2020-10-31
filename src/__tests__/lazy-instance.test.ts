@@ -25,20 +25,4 @@ describe("lazy-instance tests", function () {
 
     expect(lazyInstance.instanceName).toMatch(name);
   });
-
-  describe("readme tests", function () {
-    it("test readme", function () {
-      let value = "";
-
-      const lazyInstance = new LazyInstance(() => (value = "initialized"));
-
-      // console.log(value); // prints ""
-      // console.log(lazyInstance.get); // prints "initialized"
-      // console.log(value); // prints "initialized"
-
-      expect(value).toBe("");
-      expect(lazyInstance.get).toBe("initialized");
-      expect(value).toBe("initialized");
-    });
-  });
 });

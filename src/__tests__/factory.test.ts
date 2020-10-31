@@ -1,7 +1,7 @@
 import { DefaultFactory, Factory } from "..";
 
 describe("factory tests", function () {
-  describe("readme tests", function () {
+  describe("extending/implementing tests", function () {
     it("test extending DefaultFactory", function () {
       class MyFactory extends DefaultFactory {
         instantiate(): unknown {
