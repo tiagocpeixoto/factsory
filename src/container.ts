@@ -43,11 +43,16 @@ export type ContainerItemCreator<
   A extends ArgumentsType = ArgumentsType
 > = (params?: ContainerItemCreationParameters<D, A>) => T;
 
+export type ContainerItemDependencies = (
+  | string
+  | ContainerItemConstructor<ContainerItemType>
+)[];
+
 export type ContainerItemRegistrationOptions<
   A extends ArgumentsType = ArgumentsType
 > = {
   singleton?: boolean;
-  dependencies?: string[];
+  dependencies?: ContainerItemDependencies;
   args?: A;
 };
 
@@ -196,19 +201,21 @@ export class Container {
     return null;
   }
 
-  private getNamedAll(names: string[]): Record<string, unknown> {
-    const namedAll: Record<string, unknown> = {};
+  private getNamedAll(
+    dependencies: ContainerItemDependencies
+  ): Record<string, unknown> {
+    const resolvedDependencies: Record<string, unknown> = {};
 
-    names.forEach((name) => {
-      const named = this.getNamed(name);
-      if (named) {
-        namedAll[name] = named;
+    dependencies.forEach((dependency) => {
+      const name = typeof dependency == "string" ? dependency : dependency.name;
+      const resolvedDependency = this.getNamed(name);
+      if (resolvedDependency) {
+        resolvedDependencies[name] = resolvedDependency;
       } else {
-        namedAll[name] = new ContainerItemNotFoundError(name);
+        resolvedDependencies[name] = new ContainerItemNotFoundError(name);
       }
     });
-
-    return namedAll;
+    return resolvedDependencies;
   }
 
   private instantiate<T extends ContainerItemType>(

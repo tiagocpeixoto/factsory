@@ -217,9 +217,12 @@ describe("Container tests", function () {
   });
 
   describe("Container with dependencies tests", function () {
+    const myFactoryDependencyValue = faker.lorem.word();
+    const myFactoryDependantValue = faker.lorem.word();
+
     class MyFactoryDependency implements Factory<string> {
       create(): string {
-        return "MyFactoryDependency-value";
+        return myFactoryDependencyValue;
       }
     }
 
@@ -243,7 +246,7 @@ describe("Container tests", function () {
       }
 
       create(): string {
-        return "MyFactory-value";
+        return myFactoryDependantValue;
       }
 
       get dep(): MyFactoryDependency {
@@ -251,15 +254,90 @@ describe("Container tests", function () {
       }
     }
 
-    it("test register item class", function () {
+    beforeAll(function () {
       Container.self.register(MyFactoryDependency);
       Container.self.register(MyFactoryDependant, {
-        dependencies: ["MyFactoryDependency"],
+        dependencies: [MyFactoryDependency],
       });
+    });
+
+    it("test register item class", function () {
       expect(Container.self.get(MyFactoryDependency)).toBeTruthy();
       expect(Container.self.get(MyFactoryDependant)).toBeTruthy();
       expect(Container.self.get(MyFactoryDependant)?.dep).toBe(
         Container.self.get(MyFactoryDependency)
+      );
+    });
+
+    it("test dependencies values", function () {
+      expect(Container.self.get(MyFactoryDependency)?.create()).toBe(
+        myFactoryDependencyValue
+      );
+      expect(Container.self.get(MyFactoryDependant)?.create()).toBe(
+        myFactoryDependantValue
+      );
+    });
+  });
+
+  describe("Container with named dependencies tests", function () {
+    const myFactoryNamedDependencyValue = faker.lorem.word();
+    const myFactoryNamedDependantValue = faker.lorem.word();
+
+    class MyFactoryNamedDependency implements Factory<string> {
+      create(): string {
+        return myFactoryNamedDependencyValue;
+      }
+    }
+
+    class MyFactoryNamedDependant implements Factory<string> {
+      protected readonly dependency: MyFactoryNamedDependency;
+
+      constructor(
+        params?: ContainerItemCreationDependencies<{
+          MyFactoryNamedDependency: MyFactoryNamedDependency;
+        }>
+      ) {
+        if (params?.dependencies) {
+          this.dependency = params.dependencies.MyFactoryNamedDependency;
+        } else {
+          throw new Error("Invalid dependencies");
+        }
+
+        if (!this.dependency) {
+          throw new Error("Invalid MyFactoryNamedDependency dependency");
+        }
+      }
+
+      create(): string {
+        return myFactoryNamedDependantValue;
+      }
+
+      get dep(): MyFactoryNamedDependency {
+        return this.dependency;
+      }
+    }
+
+    beforeAll(function () {
+      Container.self.register(MyFactoryNamedDependency);
+      Container.self.register(MyFactoryNamedDependant, {
+        dependencies: ["MyFactoryNamedDependency"],
+      });
+    });
+
+    it("test register item class", function () {
+      expect(Container.self.get(MyFactoryNamedDependency)).toBeTruthy();
+      expect(Container.self.get(MyFactoryNamedDependant)).toBeTruthy();
+      expect(Container.self.get(MyFactoryNamedDependant)?.dep).toBe(
+        Container.self.get(MyFactoryNamedDependency)
+      );
+    });
+
+    it("test items values", function () {
+      expect(Container.self.get(MyFactoryNamedDependency)?.create()).toBe(
+        myFactoryNamedDependencyValue
+      );
+      expect(Container.self.get(MyFactoryNamedDependant)?.create()).toBe(
+        myFactoryNamedDependantValue
       );
     });
   });
