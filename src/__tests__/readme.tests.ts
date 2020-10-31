@@ -71,7 +71,7 @@ describe("readme tests", function () {
     });
 
     it("test implementing Factory", function () {
-      class MyFactory implements Factory {
+      class MyFactory implements Factory<string> {
         create(): string {
           return "value";
         }
