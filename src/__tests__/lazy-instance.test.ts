@@ -7,6 +7,19 @@ describe("lazy-instance tests", function () {
 
     const lazyInstance = new LazyInstance(() => (value = faker.lorem.word()));
 
+    expect(value).toBeFalsy();
+    const getValue = lazyInstance.get;
+    expect(value).toBe(getValue);
+  });
+
+  it("test eager init", function () {
+    let value = "";
+
+    const lazyInstance = new LazyInstance(() => (value = faker.lorem.word()), {
+      eagerInit: true,
+    });
+
+    expect(value).toBeTruthy();
     const getValue = lazyInstance.get;
     expect(value).toBe(getValue);
   });

@@ -235,10 +235,6 @@ export class Container {
   private instantiate<T extends ContainerItemType>(
     meta: ContainerItemMeta<T>
   ): ContainerItemType {
-    if (!meta) {
-      throw new Error("Invalid item metadata ");
-    }
-
     if (meta.options?.singleton && meta.instance) {
       return meta.instance;
     }
