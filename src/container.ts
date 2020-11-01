@@ -43,6 +43,12 @@ export type ContainerItemCreator<
   A extends ArgumentsType = ArgumentsType
 > = (params?: ContainerItemCreationParameters<D, A>) => T;
 
+export type ContainerItemRegister<
+  T extends ContainerItemType,
+  D extends DependenciesType = DependenciesType,
+  A extends ArgumentsType = ArgumentsType
+> = ContainerItemConstructor<T, D, A> | ContainerItemCreator<T, D, A>;
+
 export type ContainerItemDependencies = (
   | string
   | ContainerItemConstructor<ContainerItemType>
@@ -73,7 +79,7 @@ type ContainerItemMeta<
   D extends DependenciesType = DependenciesType,
   A extends ArgumentsType = ArgumentsType
 > = {
-  creator: ContainerItemCreator<T, D, A>;
+  creator: ContainerItemRegister<T, D, A>;
   options?: ContainerItemRegistrationOptions<A>;
   instance?: T;
 };
@@ -103,14 +109,19 @@ export class Container {
     this.config.checkExists = config.checkExists;
   }
 
-  registerAll<T extends ContainerItemType, A extends ArgumentsType>(
+  registerAll(
     items: {
-      creator: ContainerItemConstructor<T>;
-      options?: ContainerItemRegistrationOptions<A>;
+      name?: string;
+      creator: ContainerItemRegister<ContainerItemType>;
+      options?: ContainerItemRegistrationOptions;
     }[]
   ): void {
     for (const item of items) {
-      this.register(item.creator, item.options);
+      this.registerNamed(
+        item.name ?? item.creator.name,
+        item.creator,
+        item.options
+      );
     }
   }
 
@@ -160,7 +171,8 @@ export class Container {
     A extends ArgumentsType
   >(
     name: string,
-    creator: ContainerItemCreator<T, D, A>,
+    // creator: ContainerItemCreator<T, D, A>,
+    creator: ContainerItemRegister<T, D, A>,
     options?: ContainerItemRegistrationOptions<A>
   ): string {
     const actualOptions = { ...defaultItemRegistrationOptions, ...options };
@@ -169,7 +181,9 @@ export class Container {
     }
 
     this.items[name] = {
-      creator: creator as ContainerItemCreator<T>,
+      creator: creator as ContainerItemRegister<T>,
+      // creator: creator as ContainerItemCreator<T>,
+      // creator: actualCreator as ContainerItemCreator<T>,
       options: actualOptions,
     };
     return name;
@@ -233,10 +247,27 @@ export class Container {
       ? this.getNamedAll(meta.options.dependencies)
       : undefined;
 
-    meta.instance = meta.creator({
+    // const actualCreator = meta.creator.name
+    //   ? (params?: ContainerItemCreationParameters) =>
+    //       new (meta.creator as ContainerItemConstructor<T>)(params)
+    //   : meta.creator;
+
+    const params = {
       dependencies: deps,
       args: meta.options?.args,
-    });
+    };
+
+    // FIXME: how to detect if the creator is a constructor?
+    try {
+      meta.instance = new (meta.creator as ContainerItemConstructor<T>)(params);
+    } catch (error) {
+      meta.instance = (meta.creator as ContainerItemCreator<T>)(params);
+    }
+
+    // meta.instance = meta.creator({
+    //   dependencies: deps,
+    //   args: meta.options?.args,
+    // });
 
     if (meta.instance && meta.options?.singleton) {
       // TODO: does this statement free up memory?

@@ -3,10 +3,19 @@ import {
   Container,
   ContainerItemCreationArguments,
   ContainerItemCreationDependencies,
+  ContainerItemNotFoundError,
   Factory,
 } from "..";
 
 describe("Container tests", function () {
+  describe("container error tests", function () {
+    it("test item not found", function () {
+      const name = faker.lorem.word();
+      const error = new ContainerItemNotFoundError(name);
+      expect(error.containerItemName).toEqual(name);
+    });
+  });
+
   describe("register item without params tests", function () {
     const value = faker.lorem.word();
 
@@ -58,6 +67,17 @@ describe("Container tests", function () {
       expect(() => Container.self.getNamed(name, true)).toThrow(
         "not registered"
       );
+    });
+
+    it("test register all", function () {
+      const name = faker.lorem.word();
+      Container.self.registerAll([
+        { creator: TestFactory },
+        { name, creator: () => value },
+      ]);
+      expect(Container.self.get(TestFactory)).toBeTruthy();
+      expect(Container.self.getNamed(name)).toBeTruthy();
+      expect(Container.self.getNamed(faker.lorem.word(), false)).toBeFalsy();
     });
   });
 

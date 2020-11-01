@@ -3,14 +3,18 @@ const { jsWithTs: tsjPreset } = require("ts-jest/presets");
 
 const config: Config.InitialOptions = {
   collectCoverage: true,
-  collectCoverageFrom: ["src/**/*.ts", "!src/**/__tests__/*"],
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!src/**/__tests__/*",
+    "!src/**/__mocks__/*",
+  ],
   // coverageDirectory: "<rootDir>/coverage/",
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 87,
+      functions: 87,
+      lines: 87,
+      statements: 87,
     },
   },
 
