@@ -1,6 +1,10 @@
-import { DefaultFactory, Factory } from "../factory";
-import { Container, ContainerItemCreationDependencies } from "../container";
-import { LazyInstance } from "../lazy-instance";
+import {
+  DefaultFactory,
+  Factory,
+  Container,
+  ContainerItemCreationDependencies,
+  LazyInstance,
+} from "..";
 
 describe("readme tests", function () {
   describe("container tests", function () {
@@ -42,19 +46,19 @@ describe("readme tests", function () {
     }
 
     beforeAll(function () {
-      Container.self.register(MyFactory);
-      Container.self.register(MyFactoryWithDependencies, {
+      Container.I.register(MyFactory);
+      Container.I.register(MyFactoryWithDependencies, {
         dependencies: [MyFactory],
       });
 
-      console.log(Container.self.get(MyFactoryWithDependencies)?.dep.create());
+      console.log(Container.I.get(MyFactoryWithDependencies)?.dep.create());
     });
 
     it("test register item class", function () {
-      expect(Container.self.get(MyFactory)).toBeTruthy();
-      expect(Container.self.get(MyFactoryWithDependencies)).toBeTruthy();
-      expect(Container.self.get(MyFactoryWithDependencies)?.dep).toBe(
-        Container.self.get(MyFactory)
+      expect(Container.I.get(MyFactory)).toBeTruthy();
+      expect(Container.I.get(MyFactoryWithDependencies)).toBeTruthy();
+      expect(Container.I.get(MyFactoryWithDependencies)?.dep).toBe(
+        Container.I.get(MyFactory)
       );
     });
   });
@@ -81,7 +85,7 @@ describe("readme tests", function () {
     });
   });
 
-  describe("lazy-instance tests", function () {
+  describe("lazy-I tests", function () {
     it("test readme", function () {
       let value = "";
 

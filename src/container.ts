@@ -87,9 +87,55 @@ type ContainerItemMeta<T extends ContainerItemType, D, A> = {
   instance?: T;
 };
 
-export class Container {
-  protected static instance: LazyInstance<Container> = new LazyInstance(
-    () => new Container(),
+export interface ContainerSpec {
+  setConfig(config: ContainerConfig): void;
+  registerAll(
+    items: {
+      creator: ContainerItemCreator<
+        ContainerItemType,
+        DependenciesType,
+        ArgumentsType
+      >;
+      options?: ContainerItemRegistrationOptions<
+        ContainerItemType,
+        DependenciesType,
+        ArgumentsType
+      >;
+    }[]
+  ): void;
+  register<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
+    creator: ContainerItemCreator<T, D, A>,
+    options?: ContainerItemRegistrationOptions<T, D, A>
+  ): string;
+  unregister<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
+    id: ContainerItemId<T, D, A>
+  ): string;
+  getAll(
+    ids: ContainerItemId<ContainerItemType, DependenciesType, ArgumentsType>[],
+    options?: ExistsConfig
+  ): ContainerItemsType;
+  get<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(
+    id: ContainerItemId<T, D, A>,
+    options?: ExistsConfig
+  ): T | null;
+}
+
+export class Container implements ContainerSpec {
+  protected static specImpl: ContainerSpec | null;
+  protected static instance: LazyInstance<ContainerSpec> = new LazyInstance(
+    () => (Container.specImpl ??= new Container()),
     {
       name: "Container",
     }
@@ -106,7 +152,20 @@ export class Container {
     // protected constructor - it's a singleton
   }
 
-  static get self(): Container {
+  static set impl(impl: ContainerSpec) {
+    if (this.specImpl) {
+      throw new Error("The Container is already initialized");
+    } else {
+      this.specImpl = impl;
+    }
+  }
+
+  static reset(): void {
+    this.specImpl = null;
+    this.instance.reset();
+  }
+
+  static get I(): ContainerSpec {
     return this.instance.get;
   }
 

@@ -2,11 +2,13 @@ import faker from "faker";
 import chai from "chai";
 import chaiThings from "chai-things";
 import chaiLike from "chai-like";
+import { mock } from "jest-mock-extended";
 import {
   Container,
   ContainerItemCreationArguments,
   ContainerItemCreationDependencies,
   ContainerItemNotFoundError,
+  ContainerSpec,
   Factory,
   SimpleFactory,
 } from "..";
@@ -15,6 +17,61 @@ describe("Container tests", function () {
   chai.should();
   chai.use(chaiLike);
   chai.use(chaiThings);
+
+  describe("container spec implementation tests", function () {
+    // const mockedSpec = jest.fn<ContainerSpec, never>(() => ({
+    //   setConfig: jest
+    //     .fn<void, [ContainerConfig]>()
+    //     .mockImplementation((): void => {
+    //       return;
+    //     }),
+    //
+    //   registerAll: jest
+    //     .fn<void, [Record<string, unknown>[]]>()
+    //     .mockReturnThis(),
+    //
+    //   register: jest
+    //     .fn<
+    //       string,
+    //       [
+    //         ContainerItemCreator<never, never, never>,
+    //         ContainerItemRegistrationOptions<never, never, never>
+    //       ]
+    //     >()
+    //     .mockReturnThis(),
+    //
+    //   unregister: jest
+    //     .fn<string, [ContainerItemId<never, never, never>]>()
+    //     .mockReturnThis(),
+    //
+    //   getAll: jest
+    //     .fn<
+    //       ContainerItemsType,
+    //       [ContainerItemId<never, never, never>[], ExistsConfig]
+    //     >()
+    //     .mockReturnThis(),
+    //
+    //   get: jest
+    //     .fn<
+    //       never | null,
+    //       [ContainerItemId<never, never, never>, ExistsConfig]
+    //     >()
+    //     .mockReturnThis(),
+    // }));
+    const mockedSpec = mock<ContainerSpec>();
+    it("test mocked spec", function () {
+      Container.impl = mockedSpec;
+      expect(Container.I).toBe(mockedSpec);
+      expect(() => (Container.impl = mockedSpec)).toThrow(
+        "The Container is already initialized"
+      );
+    });
+
+    it("test reset", function () {
+      Container.reset();
+      expect(Container.I).not.toBe(mockedSpec);
+    });
+  });
 
   describe("container error tests", function () {
     it("test item not found", function () {
@@ -34,62 +91,72 @@ describe("Container tests", function () {
     const name = TestFactory.name;
 
     it("test register item", function () {
-      expect(Container.self.register(TestFactory)).toEqual(name);
-      expect(() => Container.self.register(TestFactory)).toThrow(
+      expect(Container.I.register(TestFactory)).toEqual(name);
+
+      expect(() => Container.I.register(TestFactory)).toThrow(
         "already registered"
       );
 
-      expect(Container.self.get(TestFactory)?.create()).toMatch(name);
+      expect(Container.I.get(TestFactory)?.create()).toMatch(name);
 
-      expect(Container.self.unregister(TestFactory)).toEqual(name);
-      expect(() => Container.self.unregister(TestFactory)).toThrow(
+      expect(Container.I.unregister(TestFactory)).toEqual(name);
+      expect(() => Container.I.unregister(TestFactory)).toThrow(
         "not registered"
       );
 
-      expect(Container.self.get(TestFactory)).toBeFalsy();
+      expect(Container.I.get(TestFactory)).toBeFalsy();
 
-      expect(() =>
-        Container.self.get(TestFactory, { checkExists: true })
-      ).toThrow("not registered");
+      expect(() => Container.I.get(TestFactory, { checkExists: true })).toThrow(
+        "not registered"
+      );
+    });
+
+    it("test register empty name item", function () {
+      const anonymousRegister = Container.I.register(() => value);
+      expect(anonymousRegister).toEqual("");
+
+      expect(() => Container.I.register(() => value)).toThrow(
+        "already registered"
+      );
     });
 
     it("test register named item", function () {
-      expect(Container.self.register(() => value, { name })).toEqual(name);
-      expect(() => Container.self.register(() => value, { name })).toThrow(
+      expect(Container.I.register(() => value, { name })).toEqual(name);
+      expect(() => Container.I.register(() => value, { name })).toThrow(
         "already registered"
       );
 
-      expect(Container.self.get(name)).toBe(value);
+      expect(Container.I.get(name)).toBe(value);
 
-      expect(Container.self.unregister(name)).toEqual(name);
-      expect(() => Container.self.unregister(name)).toThrow("not registered");
+      expect(Container.I.unregister(name)).toEqual(name);
+      expect(() => Container.I.unregister(name)).toThrow("not registered");
 
-      expect(Container.self.get(name)).toBeFalsy();
+      expect(Container.I.get(name)).toBeFalsy();
 
-      expect(() => Container.self.get(name, { checkExists: true })).toThrow(
+      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
         "not registered"
       );
     });
 
     it("test register all", function () {
       const name = faker.lorem.word();
-      Container.self.registerAll([
+      Container.I.registerAll([
         { creator: TestFactory },
         { creator: () => value, options: { name } },
       ]);
-      expect(Container.self.get(TestFactory)).toBeTruthy();
-      expect(Container.self.get(name)).toBeTruthy();
+      expect(Container.I.get(TestFactory)).toBeTruthy();
+      expect(Container.I.get(name)).toBeTruthy();
       expect(
-        Container.self.get(faker.lorem.word(), { checkExists: false })
+        Container.I.get(faker.lorem.word(), { checkExists: false })
       ).toBeFalsy();
     });
 
     it("test get named all", function () {
       const itemNotFoundName = faker.lorem.word();
       const name = faker.lorem.word();
-      Container.self.registerAll([{ creator: TestFactory, options: { name } }]);
+      Container.I.registerAll([{ creator: TestFactory, options: { name } }]);
 
-      const result = Container.self.getAll([itemNotFoundName, name], {
+      const result = Container.I.getAll([itemNotFoundName, name], {
         checkExists: false,
       });
       expect(result[itemNotFoundName]).toBeInstanceOf(
@@ -123,54 +190,54 @@ describe("Container tests", function () {
     const param = faker.lorem.word();
 
     it("test register item", function () {
-      expect(
-        Container.self.register(TestParamsFactory, { args: param })
-      ).toEqual(name);
-      expect(() => Container.self.register(TestParamsFactory)).toThrow(
+      expect(Container.I.register(TestParamsFactory, { args: param })).toEqual(
+        name
+      );
+      expect(() => Container.I.register(TestParamsFactory)).toThrow(
         "already registered"
       );
 
-      expect(Container.self.get(TestParamsFactory)?.create()).toMatch(param);
+      expect(Container.I.get(TestParamsFactory)?.create()).toMatch(param);
 
-      expect(Container.self.unregister(TestParamsFactory)).toEqual(name);
-      expect(() => Container.self.unregister(TestParamsFactory)).toThrow(
+      expect(Container.I.unregister(TestParamsFactory)).toEqual(name);
+      expect(() => Container.I.unregister(TestParamsFactory)).toThrow(
         "not registered"
       );
 
-      expect(Container.self.get(TestParamsFactory)).toBeFalsy();
+      expect(Container.I.get(TestParamsFactory)).toBeFalsy();
 
       expect(() =>
-        Container.self.get(TestParamsFactory, { checkExists: true })
+        Container.I.get(TestParamsFactory, { checkExists: true })
       ).toThrow("not registered");
     });
 
     it("test register named item", function () {
       expect(
-        Container.self.register(
+        Container.I.register(
           (params?: ContainerItemCreationArguments<string>) =>
             params?.args + "!",
           { name, args: param }
         )
       ).toEqual(name);
       expect(() =>
-        Container.self.register(() => faker.lorem.word(), { name })
+        Container.I.register(() => faker.lorem.word(), { name })
       ).toThrow("already registered");
 
-      expect(Container.self.get(name)).toMatch(param + "!");
+      expect(Container.I.get(name)).toMatch(param + "!");
 
-      expect(Container.self.unregister(name)).toEqual(name);
-      expect(() => Container.self.unregister(name)).toThrow("not registered");
+      expect(Container.I.unregister(name)).toEqual(name);
+      expect(() => Container.I.unregister(name)).toThrow("not registered");
 
-      expect(Container.self.get(name)).toBeFalsy();
+      expect(Container.I.get(name)).toBeFalsy();
 
-      expect(() => Container.self.get(name, { checkExists: true })).toThrow(
+      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
         "not registered"
       );
     });
 
     it("test register all", function () {
       const name = faker.lorem.word();
-      Container.self.registerAll([
+      Container.I.registerAll([
         { creator: TestParamsFactory, options: { args: param } },
         {
           creator: (params?: ContainerItemCreationArguments<string>) =>
@@ -179,14 +246,14 @@ describe("Container tests", function () {
         },
       ]);
 
-      const result = Container.self.getAll([TestParamsFactory, name]);
+      const result = Container.I.getAll([TestParamsFactory, name]);
       expect(
         (result[TestParamsFactory.name] as TestParamsFactory)?.create()
       ).toBe(param);
       expect(result[name]).toMatch(param + "!");
 
-      expect(Container.self.get(TestParamsFactory)?.create()).toBe(param);
-      expect(Container.self.get(name)).toMatch(param + "!");
+      expect(Container.I.get(TestParamsFactory)?.create()).toBe(param);
+      expect(Container.I.get(name)).toMatch(param + "!");
     });
   });
 
@@ -204,17 +271,17 @@ describe("Container tests", function () {
     }
 
     beforeAll(function () {
-      Container.self.register(SingletonFactory);
+      Container.I.register(SingletonFactory);
     });
 
     it("test singleton creation", function () {
-      const factory1 = Container.self.get(SingletonFactory);
+      const factory1 = Container.I.get(SingletonFactory);
       expect(factory1).toBeTruthy();
 
       const value1 = factory1?.create();
       expect(value1).toBeTruthy();
 
-      const factory2 = Container.self.get(SingletonFactory);
+      const factory2 = Container.I.get(SingletonFactory);
       expect(factory2).toBeTruthy();
       expect(factory2).toEqual(factory1);
 
@@ -237,17 +304,17 @@ describe("Container tests", function () {
     }
 
     beforeAll(function () {
-      Container.self.register(NonSingletonFactory, { singleton: false });
+      Container.I.register(NonSingletonFactory, { singleton: false });
     });
 
     it("test nom singleton creation", function () {
-      const factory1 = Container.self.get(NonSingletonFactory);
+      const factory1 = Container.I.get(NonSingletonFactory);
       expect(factory1).toBeTruthy();
 
       const value1 = factory1?.create();
       expect(value1).toBeTruthy();
 
-      const factory2 = Container.self.get(NonSingletonFactory);
+      const factory2 = Container.I.get(NonSingletonFactory);
       expect(factory2).toBeTruthy();
       expect(factory2).not.toEqual(factory1);
 
@@ -258,17 +325,17 @@ describe("Container tests", function () {
 
   describe("Container config tests", function () {
     it("test default config", function () {
-      expect(Container.self.get(faker.lorem.word())).toBeFalsy();
+      expect(Container.I.get(faker.lorem.word())).toBeFalsy();
     });
 
     it("test false checkExists", function () {
-      Container.self.setConfig({ checkExists: false });
-      expect(Container.self.get(faker.lorem.word())).toBeFalsy();
+      Container.I.setConfig({ checkExists: false });
+      expect(Container.I.get(faker.lorem.word())).toBeFalsy();
     });
 
     it("test true checkExists", function () {
-      Container.self.setConfig({ checkExists: true });
-      expect(() => Container.self.get(faker.lorem.word())).toThrow(
+      Container.I.setConfig({ checkExists: true });
+      expect(() => Container.I.get(faker.lorem.word())).toThrow(
         "not registered"
       );
     });
@@ -313,25 +380,25 @@ describe("Container tests", function () {
     }
 
     beforeAll(function () {
-      Container.self.register(MyFactoryDependency);
-      Container.self.register(MyFactoryDependant, {
+      Container.I.register(MyFactoryDependency);
+      Container.I.register(MyFactoryDependant, {
         dependencies: [MyFactoryDependency],
       });
     });
 
     it("test register item class", function () {
-      expect(Container.self.get(MyFactoryDependency)).toBeTruthy();
-      expect(Container.self.get(MyFactoryDependant)).toBeTruthy();
-      expect(Container.self.get(MyFactoryDependant)?.dep).toBe(
-        Container.self.get(MyFactoryDependency)
+      expect(Container.I.get(MyFactoryDependency)).toBeTruthy();
+      expect(Container.I.get(MyFactoryDependant)).toBeTruthy();
+      expect(Container.I.get(MyFactoryDependant)?.dep).toBe(
+        Container.I.get(MyFactoryDependency)
       );
     });
 
     it("test dependencies values", function () {
-      expect(Container.self.get(MyFactoryDependency)?.create()).toBe(
+      expect(Container.I.get(MyFactoryDependency)?.create()).toBe(
         myFactoryDependencyValue
       );
-      expect(Container.self.get(MyFactoryDependant)?.create()).toBe(
+      expect(Container.I.get(MyFactoryDependant)?.create()).toBe(
         myFactoryDependantValue
       );
     });
@@ -376,25 +443,25 @@ describe("Container tests", function () {
     }
 
     beforeAll(function () {
-      Container.self.register(MyFactoryNamedDependency);
-      Container.self.register(MyFactoryNamedDependant, {
+      Container.I.register(MyFactoryNamedDependency);
+      Container.I.register(MyFactoryNamedDependant, {
         dependencies: ["MyFactoryNamedDependency"],
       });
     });
 
     it("test register item class", function () {
-      expect(Container.self.get(MyFactoryNamedDependency)).toBeTruthy();
-      expect(Container.self.get(MyFactoryNamedDependant)).toBeTruthy();
-      expect(Container.self.get(MyFactoryNamedDependant)?.dep).toBe(
-        Container.self.get(MyFactoryNamedDependency)
+      expect(Container.I.get(MyFactoryNamedDependency)).toBeTruthy();
+      expect(Container.I.get(MyFactoryNamedDependant)).toBeTruthy();
+      expect(Container.I.get(MyFactoryNamedDependant)?.dep).toBe(
+        Container.I.get(MyFactoryNamedDependency)
       );
     });
 
     it("test items values", function () {
-      expect(Container.self.get(MyFactoryNamedDependency)?.create()).toBe(
+      expect(Container.I.get(MyFactoryNamedDependency)?.create()).toBe(
         myFactoryNamedDependencyValue
       );
-      expect(Container.self.get(MyFactoryNamedDependant)?.create()).toBe(
+      expect(Container.I.get(MyFactoryNamedDependant)?.create()).toBe(
         myFactoryNamedDependantValue
       );
     });

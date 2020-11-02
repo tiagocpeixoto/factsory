@@ -38,4 +38,18 @@ describe("lazy-instance tests", function () {
 
     expect(lazyInstance.instanceName).toMatch(name);
   });
+
+  it("test reset", function () {
+    let counter = 0;
+    const lazyInstance = new LazyInstance(() => ++counter);
+    expect(lazyInstance.get).toBe(1);
+    expect(counter).toBe(1);
+    // again
+    expect(lazyInstance.get).toBe(1);
+    expect(counter).toBe(1);
+    // reset
+    lazyInstance.reset();
+    expect(lazyInstance.get).toBe(2);
+    expect(counter).toBe(2);
+  });
 });

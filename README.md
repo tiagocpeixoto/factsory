@@ -61,20 +61,45 @@ yarn add factsory
    ```
 
 
+### Container instance
+
+- To access the Container instance, just call the `Container.I` static method
+
+- It's possible to define a customized Container implementation, useful for testing. You just need to implement 
+  the `ContainerSpec` interface as in the following example (based on [jest-mock-extended](https://www.npmjs.com/package/jest-mock-extended)):
+
+   ``` ts
+   // using jest-mock-extended package
+   const mockedSpec = mock<ContainerSpec>();
+   Container.impl = mockedSpec;
+  
+   // To reset to the default implementation, just call reset()
+   Container.reset();
+   ```
+
+
 ### Container registration
 
-- A class or almost any other object can be registered on the Container, which can be done in two ways:
+- A class or almost any other object can be registered in the Container, which can be done in two ways:
 
 1. registering a class (e.g. a factory class - see [Factory definition](#factory-definition) section):
 
    ``` ts
-   Container.self.register(MyFactory);
+   // name = "MyFactory"
+   Container.I.register(MyFactory);
+   
+   // or
+   Container.I.register(MyFactory, { name: "MyFactoryCustomName" });
    ```
 
-1. registering a named creation function:
+1. registering a creation function:
 
    ``` ts
-   Container.self.registerNamed("MyFactory", () => "value");
+   // name = ""
+   Container.I.register(() => "value");
+   
+   // or
+   Container.I.register(() => "value", { name: "MyFactory" });
    ```
    
 - It's also possible to define dependencies, which will be injected during the object creation:
@@ -118,29 +143,30 @@ yarn add factsory
     }  
   
     // registering objects
-    Container.self.register(MyFactory);
-    Container.self.register(MyFactoryWithDependencies, {
+    Container.I.register(MyFactory);
+    Container.I.register(MyFactoryWithDependencies, {
       dependencies: [MyFactory],
     });
   
     // will print 'aValue'
-    console.log(Container.self.get(MyFactoryWithDependencies)?.dep.create());
+    console.log(Container.I.get(MyFactoryWithDependencies)?.dep.create());
    ```
+
 
 ### Object claim from Container
 
-- After registering a class or a named creation function, it can also be claimed in two ways: 
+- After registering a class or a creation function, it can also be claimed in two ways: 
 
-1. If it is a class, it can be claimed by the `Container.self.get` method:
+1. If it is a class, it can be claimed by the `Container.I.get` method using the class name as a parameter:
 
    ``` ts
-   Container.self.get(MyFactory);
+   Container.I.get(MyFactory);
    ```
 
-1. If it's a named creation function, it can be claimed by the `Container.self.getNamed` method:
+1. If it is a creation function, it can be claimed by the `Container.I.get` method using the registered name as a parameter:
 
    ``` ts
-   Container.self.getNamed("MyFactory");
+   Container.I.get("MyFactory");
    ```
 
 

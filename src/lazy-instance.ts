@@ -30,4 +30,8 @@ export class LazyInstance<T> {
 
     return this.instance || (this.instance = this.lazyInit());
   }
+
+  reset(): void {
+    this.instance = undefined;
+  }
 }
