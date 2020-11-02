@@ -5,6 +5,7 @@ import {
   ContainerItemCreationDependencies,
   ContainerItemNotFoundError,
   Factory,
+  SimpleFactory,
 } from "..";
 
 describe("Container tests", function () {
@@ -82,12 +83,13 @@ describe("Container tests", function () {
   });
 
   describe("register item with params tests", function () {
-    const param = faker.lorem.word();
-
-    class TestParamsFactory implements Factory<unknown, string> {
+    class TestParamsFactory implements SimpleFactory<string | undefined> {
       private readonly value?: string;
 
       constructor(params?: ContainerItemCreationArguments<string>) {
+        // if (!params || !params.args) {
+        //   throw new Error("Invalid arguments");
+        // }
         this.value = params?.args;
       }
 
@@ -95,9 +97,8 @@ describe("Container tests", function () {
         return this.value;
       }
     }
-
     const name = TestParamsFactory.name;
-    const factory = new TestParamsFactory({ args: faker.lorem.word() });
+    const param = faker.lorem.word();
 
     it("test register item", function () {
       expect(
@@ -132,9 +133,9 @@ describe("Container tests", function () {
           }
         )
       ).toEqual(name);
-      expect(() => Container.self.registerNamed(name, () => factory)).toThrow(
-        "already registered"
-      );
+      expect(() =>
+        Container.self.registerNamed(name, () => faker.lorem.word())
+      ).toThrow("already registered");
 
       expect(Container.self.getNamed(name)).toMatch(param + "!");
 
@@ -148,6 +149,21 @@ describe("Container tests", function () {
       expect(() => Container.self.getNamed(name, true)).toThrow(
         "not registered"
       );
+    });
+
+    it("test register all", function () {
+      const factoryName = faker.lorem.word();
+      Container.self.registerAll([
+        { creator: TestParamsFactory, options: { args: param } },
+        {
+          name: factoryName,
+          creator: (params?: ContainerItemCreationArguments<string>) =>
+            params?.args + "!",
+          options: { args: param },
+        },
+      ]);
+      expect(Container.self.get(TestParamsFactory)?.create()).toBe(param);
+      expect(Container.self.getNamed(factoryName)).toMatch(param + "!");
     });
   });
 

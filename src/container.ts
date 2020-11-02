@@ -10,59 +10,64 @@ export class ContainerItemNotFoundError extends Error {
 }
 
 export type ContainerItemType = unknown;
-
-export type DependenciesType = Record<string, unknown>;
-
-export type ArgumentsType = unknown;
+export type InferredDependenciesType<D> = D extends Record<string, infer ID>
+  ? Record<string, ID>
+  : never;
+export type DependenciesType = InferredDependenciesType<
+  Record<string, unknown>
+>;
+export type InferredArgumentsType<A> = A extends infer IA ? IA : never;
+export type ArgumentsType = InferredArgumentsType<unknown>;
 
 export type ContainerItemCreationParameters<
-  D extends DependenciesType = DependenciesType,
-  A extends ArgumentsType = ArgumentsType
+  D, // extends DependenciesType, // = DependenciesType,
+  A // extends ArgumentsType // = ArgumentsType
 > = {
-  dependencies?: D;
-  args?: A;
+  dependencies?: InferredDependenciesType<D>;
+  args?: InferredArgumentsType<A>;
 };
 
 export type ContainerItemCreationDependencies<
-  D extends DependenciesType = DependenciesType
+  D extends DependenciesType
 > = ContainerItemCreationParameters<D, never>;
 
-export type ContainerItemCreationArguments<
-  A extends ArgumentsType = ArgumentsType
-> = ContainerItemCreationParameters<never, A>;
+export type ContainerItemCreationArguments<A> = ContainerItemCreationParameters<
+  never,
+  A
+>;
 
-export type ContainerItemConstructor<
-  T extends ContainerItemType,
-  D extends DependenciesType = DependenciesType,
-  A extends ArgumentsType = ArgumentsType
-> = new (params?: ContainerItemCreationParameters<D, A>) => T;
+export type ContainerItemCreationFunction<T extends ContainerItemType, D, A> = (
+  params?: ContainerItemCreationParameters<D, A>
+) => T;
 
-export type ContainerItemCreator<
-  T extends ContainerItemType,
-  D extends DependenciesType = DependenciesType,
-  A extends ArgumentsType = ArgumentsType
-> = (params?: ContainerItemCreationParameters<D, A>) => T;
+export type ContainerItemConstructor<T extends ContainerItemType, D, A> = new (
+  params?: ContainerItemCreationParameters<D, A>
+) => T;
 
-export type ContainerItemRegister<
-  T extends ContainerItemType,
-  D extends DependenciesType = DependenciesType,
-  A extends ArgumentsType = ArgumentsType
-> = ContainerItemConstructor<T, D, A> | ContainerItemCreator<T, D, A>;
+export type ContainerItemCreator<T extends ContainerItemType, D, A> =
+  | ContainerItemConstructor<T, D, A>
+  | ContainerItemCreationFunction<T, D, A>;
 
-export type ContainerItemDependencies = (
+export type ContainerItemDependencies<T extends ContainerItemType, D, A> = (
   | string
-  | ContainerItemConstructor<ContainerItemType>
+  | ContainerItemConstructor<T, D, A>
 )[];
 
 export type ContainerItemRegistrationOptions<
-  A extends ArgumentsType = ArgumentsType
+  T extends ContainerItemType,
+  D,
+  A
 > = {
   singleton?: boolean;
-  dependencies?: ContainerItemDependencies;
+  dependencies?: ContainerItemDependencies<T, D, A>;
   args?: A;
 };
 
-export const defaultItemRegistrationOptions: ContainerItemRegistrationOptions = {
+export const defaultItemRegistrationOptions: ContainerItemRegistrationOptions<
+  ContainerItemType,
+  DependenciesType,
+  ArgumentsType
+> = {
   singleton: true,
 };
 
@@ -74,13 +79,9 @@ export const defaultContainerConfig: ContainerConfig = {
   checkExists: false,
 };
 
-type ContainerItemMeta<
-  T extends ContainerItemType,
-  D extends DependenciesType = DependenciesType,
-  A extends ArgumentsType = ArgumentsType
-> = {
-  creator: ContainerItemRegister<T, D, A>;
-  options?: ContainerItemRegistrationOptions<A>;
+type ContainerItemMeta<T extends ContainerItemType, D, A> = {
+  creator: ContainerItemCreator<T, D, A>;
+  options?: ContainerItemRegistrationOptions<T, D, A>;
   instance?: T;
 };
 
@@ -93,7 +94,9 @@ export class Container {
   );
 
   readonly items: {
-    [k: string]: ContainerItemMeta<ContainerItemType> | undefined;
+    [k: string]:
+      | ContainerItemMeta<ContainerItemType, DependenciesType, ArgumentsType>
+      | undefined;
   } = {};
   readonly config: ContainerConfig = defaultContainerConfig;
 
@@ -112,8 +115,12 @@ export class Container {
   registerAll(
     items: {
       name?: string;
-      creator: ContainerItemRegister<ContainerItemType>;
-      options?: ContainerItemRegistrationOptions;
+      creator: ContainerItemCreator<ContainerItemType, unknown, unknown>;
+      options?: ContainerItemRegistrationOptions<
+        ContainerItemType,
+        DependenciesType,
+        ArgumentsType
+      >;
     }[]
   ): void {
     for (const item of items) {
@@ -131,13 +138,14 @@ export class Container {
     A extends ArgumentsType
   >(
     creator: ContainerItemConstructor<T, D, A>,
-    options?: ContainerItemRegistrationOptions<A>
+    options?: ContainerItemRegistrationOptions<T, D, A>
   ): string {
-    return this.registerNamed(
-      creator.name,
-      (params?: ContainerItemCreationParameters<D, A>) => new creator(params),
-      options
-    );
+    return this.registerNamed(creator.name, creator, options);
+    // return this.registerNamed(
+    //   creator.name,
+    //   (params?: ContainerItemCreationParameters<D, A>) => new creator(params),
+    //   options
+    // );
   }
 
   unregister<
@@ -171,9 +179,8 @@ export class Container {
     A extends ArgumentsType
   >(
     name: string,
-    // creator: ContainerItemCreator<T, D, A>,
-    creator: ContainerItemRegister<T, D, A>,
-    options?: ContainerItemRegistrationOptions<A>
+    creator: ContainerItemCreator<T, D, A>,
+    options?: ContainerItemRegistrationOptions<T, D, A>
   ): string {
     const actualOptions = { ...defaultItemRegistrationOptions, ...options };
     if (this.items[name]) {
@@ -181,9 +188,7 @@ export class Container {
     }
 
     this.items[name] = {
-      creator: creator as ContainerItemRegister<T>,
-      // creator: creator as ContainerItemCreator<T>,
-      // creator: actualCreator as ContainerItemCreator<T>,
+      creator,
       options: actualOptions,
     };
     return name;
@@ -216,7 +221,7 @@ export class Container {
   }
 
   private getNamedAll(
-    dependencies: ContainerItemDependencies
+    dependencies: ContainerItemDependencies<ContainerItemType, unknown, unknown>
   ): Record<string, unknown> {
     const resolvedDependencies: Record<string, unknown> = {};
 
@@ -232,9 +237,11 @@ export class Container {
     return resolvedDependencies;
   }
 
-  private instantiate<T extends ContainerItemType>(
-    meta: ContainerItemMeta<T>
-  ): ContainerItemType {
+  private instantiate<
+    T extends ContainerItemType,
+    D extends DependenciesType,
+    A extends ArgumentsType
+  >(meta: ContainerItemMeta<T, D, A>): ContainerItemType {
     if (meta.options?.singleton && meta.instance) {
       return meta.instance;
     }
@@ -243,21 +250,28 @@ export class Container {
       ? this.getNamedAll(meta.options.dependencies)
       : undefined;
 
+    const params: ContainerItemCreationParameters<
+      DependenciesType,
+      ArgumentsType
+    > = {
+      dependencies: deps,
+      args: meta.options?.args,
+    };
+
     // const actualCreator = meta.creator.name
     //   ? (params?: ContainerItemCreationParameters) =>
     //       new (meta.creator as ContainerItemConstructor<T>)(params)
     //   : meta.creator;
 
-    const params = {
-      dependencies: deps,
-      args: meta.options?.args,
-    };
-
     // FIXME: how to detect if the creator is a constructor?
     try {
-      meta.instance = new (meta.creator as ContainerItemConstructor<T>)(params);
+      meta.instance = new (meta.creator as ContainerItemConstructor<T, D, A>)(
+        params
+      );
     } catch (error) {
-      meta.instance = (meta.creator as ContainerItemCreator<T>)(params);
+      meta.instance = (meta.creator as ContainerItemCreationFunction<T, D, A>)(
+        params
+      );
     }
 
     // meta.instance = meta.creator({
