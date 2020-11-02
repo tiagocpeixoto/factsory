@@ -1,4 +1,7 @@
 import faker from "faker";
+import chai from "chai";
+import chaiThings from "chai-things";
+import chaiLike from "chai-like";
 import {
   Container,
   ContainerItemCreationArguments,
@@ -9,6 +12,10 @@ import {
 } from "..";
 
 describe("Container tests", function () {
+  chai.should();
+  chai.use(chaiLike);
+  chai.use(chaiThings);
+
   describe("container error tests", function () {
     it("test item not found", function () {
       const name = faker.lorem.word();
@@ -19,15 +26,12 @@ describe("Container tests", function () {
 
   describe("register item without params tests", function () {
     const value = faker.lorem.word();
-
     class TestFactory implements Factory {
       create(): string {
         return name;
       }
     }
-
     const name = TestFactory.name;
-    // const factory = new TestFactory();
 
     it("test register item", function () {
       expect(Container.self.register(TestFactory)).toEqual(name);
@@ -35,8 +39,7 @@ describe("Container tests", function () {
         "already registered"
       );
 
-      const createResult = Container.self.get(TestFactory)?.create();
-      expect(createResult).toMatch(name);
+      expect(Container.self.get(TestFactory)?.create()).toMatch(name);
 
       expect(Container.self.unregister(TestFactory)).toEqual(name);
       expect(() => Container.self.unregister(TestFactory)).toThrow(
@@ -45,27 +48,25 @@ describe("Container tests", function () {
 
       expect(Container.self.get(TestFactory)).toBeFalsy();
 
-      expect(() => Container.self.get(TestFactory, true)).toThrow(
-        "not registered"
-      );
+      expect(() =>
+        Container.self.get(TestFactory, { checkExists: true })
+      ).toThrow("not registered");
     });
 
     it("test register named item", function () {
-      expect(Container.self.registerNamed(name, () => value)).toEqual(name);
-      expect(() => Container.self.registerNamed(name, () => value)).toThrow(
+      expect(Container.self.register(() => value, { name })).toEqual(name);
+      expect(() => Container.self.register(() => value, { name })).toThrow(
         "already registered"
       );
 
-      expect(Container.self.getNamed(name)).toBe(value);
+      expect(Container.self.get(name)).toBe(value);
 
-      expect(Container.self.unregisterNamed(name)).toEqual(name);
-      expect(() => Container.self.unregisterNamed(name)).toThrow(
-        "not registered"
-      );
+      expect(Container.self.unregister(name)).toEqual(name);
+      expect(() => Container.self.unregister(name)).toThrow("not registered");
 
-      expect(Container.self.getNamed(name)).toBeFalsy();
+      expect(Container.self.get(name)).toBeFalsy();
 
-      expect(() => Container.self.getNamed(name, true)).toThrow(
+      expect(() => Container.self.get(name, { checkExists: true })).toThrow(
         "not registered"
       );
     });
@@ -74,11 +75,32 @@ describe("Container tests", function () {
       const name = faker.lorem.word();
       Container.self.registerAll([
         { creator: TestFactory },
-        { name, creator: () => value },
+        { creator: () => value, options: { name } },
       ]);
       expect(Container.self.get(TestFactory)).toBeTruthy();
-      expect(Container.self.getNamed(name)).toBeTruthy();
-      expect(Container.self.getNamed(faker.lorem.word(), false)).toBeFalsy();
+      expect(Container.self.get(name)).toBeTruthy();
+      expect(
+        Container.self.get(faker.lorem.word(), { checkExists: false })
+      ).toBeFalsy();
+    });
+
+    it("test get named all", function () {
+      const itemNotFoundName = faker.lorem.word();
+      const name = faker.lorem.word();
+      Container.self.registerAll([{ creator: TestFactory, options: { name } }]);
+
+      const result = Container.self.getAll([itemNotFoundName, name], {
+        checkExists: false,
+      });
+      expect(result[itemNotFoundName]).toBeInstanceOf(
+        ContainerItemNotFoundError
+      );
+      expect(result[name]).toBeInstanceOf(TestFactory);
+
+      result.should.have
+        .property(itemNotFoundName)
+        .instanceOf(ContainerItemNotFoundError);
+      result.should.have.property(name).instanceOf(TestFactory);
     });
   });
 
@@ -117,53 +139,54 @@ describe("Container tests", function () {
 
       expect(Container.self.get(TestParamsFactory)).toBeFalsy();
 
-      expect(() => Container.self.get(TestParamsFactory, true)).toThrow(
-        "not registered"
-      );
+      expect(() =>
+        Container.self.get(TestParamsFactory, { checkExists: true })
+      ).toThrow("not registered");
     });
 
     it("test register named item", function () {
       expect(
-        Container.self.registerNamed(
-          name,
+        Container.self.register(
           (params?: ContainerItemCreationArguments<string>) =>
             params?.args + "!",
-          {
-            args: param,
-          }
+          { name, args: param }
         )
       ).toEqual(name);
       expect(() =>
-        Container.self.registerNamed(name, () => faker.lorem.word())
+        Container.self.register(() => faker.lorem.word(), { name })
       ).toThrow("already registered");
 
-      expect(Container.self.getNamed(name)).toMatch(param + "!");
+      expect(Container.self.get(name)).toMatch(param + "!");
 
-      expect(Container.self.unregisterNamed(name)).toEqual(name);
-      expect(() => Container.self.unregisterNamed(name)).toThrow(
-        "not registered"
-      );
+      expect(Container.self.unregister(name)).toEqual(name);
+      expect(() => Container.self.unregister(name)).toThrow("not registered");
 
-      expect(Container.self.getNamed(name)).toBeFalsy();
+      expect(Container.self.get(name)).toBeFalsy();
 
-      expect(() => Container.self.getNamed(name, true)).toThrow(
+      expect(() => Container.self.get(name, { checkExists: true })).toThrow(
         "not registered"
       );
     });
 
     it("test register all", function () {
-      const factoryName = faker.lorem.word();
+      const name = faker.lorem.word();
       Container.self.registerAll([
         { creator: TestParamsFactory, options: { args: param } },
         {
-          name: factoryName,
           creator: (params?: ContainerItemCreationArguments<string>) =>
             params?.args + "!",
-          options: { args: param },
+          options: { name, args: param },
         },
       ]);
+
+      const result = Container.self.getAll([TestParamsFactory, name]);
+      expect(
+        (result[TestParamsFactory.name] as TestParamsFactory)?.create()
+      ).toBe(param);
+      expect(result[name]).toMatch(param + "!");
+
       expect(Container.self.get(TestParamsFactory)?.create()).toBe(param);
-      expect(Container.self.getNamed(factoryName)).toMatch(param + "!");
+      expect(Container.self.get(name)).toMatch(param + "!");
     });
   });
 
@@ -235,17 +258,17 @@ describe("Container tests", function () {
 
   describe("Container config tests", function () {
     it("test default config", function () {
-      expect(Container.self.getNamed(faker.lorem.word())).toBeFalsy();
+      expect(Container.self.get(faker.lorem.word())).toBeFalsy();
     });
 
     it("test false checkExists", function () {
       Container.self.setConfig({ checkExists: false });
-      expect(Container.self.getNamed(faker.lorem.word())).toBeFalsy();
+      expect(Container.self.get(faker.lorem.word())).toBeFalsy();
     });
 
     it("test true checkExists", function () {
       Container.self.setConfig({ checkExists: true });
-      expect(() => Container.self.getNamed(faker.lorem.word())).toThrow(
+      expect(() => Container.self.get(faker.lorem.word())).toThrow(
         "not registered"
       );
     });

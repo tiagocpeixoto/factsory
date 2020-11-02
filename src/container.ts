@@ -9,20 +9,20 @@ export class ContainerItemNotFoundError extends Error {
   }
 }
 
-export type ContainerItemType = unknown;
-export type InferredDependenciesType<D> = D extends Record<string, infer ID>
+export type InferredContainerItems<D> = D extends Record<string, infer ID>
   ? Record<string, ID>
   : never;
-export type DependenciesType = InferredDependenciesType<
+export type ContainerItemsType = InferredContainerItems<
   Record<string, unknown>
 >;
+
+export type ContainerItemType = unknown;
+export type InferredDependenciesType<D> = InferredContainerItems<D>;
+export type DependenciesType = ContainerItemsType;
 export type InferredArgumentsType<A> = A extends infer IA ? IA : never;
 export type ArgumentsType = InferredArgumentsType<unknown>;
 
-export type ContainerItemCreationParameters<
-  D, // extends DependenciesType, // = DependenciesType,
-  A // extends ArgumentsType // = ArgumentsType
-> = {
+export type ContainerItemCreationParameters<D, A> = {
   dependencies?: InferredDependenciesType<D>;
   args?: InferredArgumentsType<A>;
 };
@@ -48,18 +48,18 @@ export type ContainerItemCreator<T extends ContainerItemType, D, A> =
   | ContainerItemConstructor<T, D, A>
   | ContainerItemCreationFunction<T, D, A>;
 
-export type ContainerItemDependencies<T extends ContainerItemType, D, A> = (
+export type ContainerItemId<T extends ContainerItemType, D, A> =
   | string
-  | ContainerItemConstructor<T, D, A>
-)[];
+  | ContainerItemConstructor<T, D, A>;
 
 export type ContainerItemRegistrationOptions<
   T extends ContainerItemType,
   D,
   A
 > = {
+  name?: string;
   singleton?: boolean;
-  dependencies?: ContainerItemDependencies<T, D, A>;
+  dependencies?: ContainerItemId<T, D, A>[];
   args?: A;
 };
 
@@ -71,9 +71,11 @@ export const defaultItemRegistrationOptions: ContainerItemRegistrationOptions<
   singleton: true,
 };
 
-export type ContainerConfig = {
-  checkExists: boolean;
+export type ExistsConfig = {
+  checkExists?: boolean;
 };
+
+export type ContainerConfig = ExistsConfig;
 
 export const defaultContainerConfig: ContainerConfig = {
   checkExists: false,
@@ -101,7 +103,7 @@ export class Container {
   readonly config: ContainerConfig = defaultContainerConfig;
 
   protected constructor() {
-    // protected constructor because it is a singleton
+    // protected constructor - it's a singleton
   }
 
   static get self(): Container {
@@ -114,8 +116,11 @@ export class Container {
 
   registerAll(
     items: {
-      name?: string;
-      creator: ContainerItemCreator<ContainerItemType, unknown, unknown>;
+      creator: ContainerItemCreator<
+        ContainerItemType,
+        DependenciesType,
+        ArgumentsType
+      >;
       options?: ContainerItemRegistrationOptions<
         ContainerItemType,
         DependenciesType,
@@ -124,11 +129,7 @@ export class Container {
     }[]
   ): void {
     for (const item of items) {
-      this.registerNamed(
-        item.name ?? item.creator.name,
-        item.creator,
-        item.options
-      );
+      this.register(item.creator, item.options);
     }
   }
 
@@ -137,104 +138,71 @@ export class Container {
     D extends DependenciesType,
     A extends ArgumentsType
   >(
-    creator: ContainerItemConstructor<T, D, A>,
+    creator: ContainerItemCreator<T, D, A>,
     options?: ContainerItemRegistrationOptions<T, D, A>
   ): string {
-    return this.registerNamed(creator.name, creator, options);
-    // return this.registerNamed(
-    //   creator.name,
-    //   (params?: ContainerItemCreationParameters<D, A>) => new creator(params),
-    //   options
-    // );
+    const actualName = options?.name ?? creator.name;
+    const actualOptions = { ...defaultItemRegistrationOptions, ...options };
+    if (this.items[actualName]) {
+      throw new Error(`Item '${actualName}' already registered`);
+    }
+
+    this.items[actualName] = {
+      creator,
+      options: actualOptions,
+    };
+    return actualName;
   }
 
   unregister<
     T extends ContainerItemType,
     D extends DependenciesType,
     A extends ArgumentsType
-  >(itemConstructor: ContainerItemConstructor<T, D, A>): string {
-    return this.unregisterNamed(itemConstructor.name);
+  >(id: ContainerItemId<T, D, A>): string {
+    const name = Container.getName(id);
+    if (this.items[name]) {
+      this.items[name] = undefined;
+      return name;
+    }
+    throw new Error(`Item '${name}' not registered`);
+  }
+
+  getAll(
+    ids: ContainerItemId<ContainerItemType, DependenciesType, ArgumentsType>[],
+    options?: ExistsConfig
+  ): ContainerItemsType {
+    const resolvedItems: ContainerItemsType = {};
+
+    ids.forEach((id) => {
+      const name = Container.getName(id);
+      const resolvedDependency = this.get(name, options);
+      if (resolvedDependency) {
+        resolvedItems[name] = resolvedDependency;
+      } else {
+        resolvedItems[name] = new ContainerItemNotFoundError(name);
+      }
+    });
+    return resolvedItems;
   }
 
   get<
     T extends ContainerItemType,
     D extends DependenciesType,
     A extends ArgumentsType
-  >(
-    itemConstructor: ContainerItemConstructor<T, D, A>,
-    validate?: boolean
-  ): T | null {
-    const item = this.getNamed(itemConstructor.name, validate);
+  >(id: ContainerItemId<T, D, A>, options?: ExistsConfig): T | null {
+    const name = Container.getName(id);
 
-    if (item) {
-      return item as T;
-    }
-
-    return null;
-  }
-
-  registerNamed<
-    T extends ContainerItemType,
-    D extends DependenciesType,
-    A extends ArgumentsType
-  >(
-    name: string,
-    creator: ContainerItemCreator<T, D, A>,
-    options?: ContainerItemRegistrationOptions<T, D, A>
-  ): string {
-    const actualOptions = { ...defaultItemRegistrationOptions, ...options };
-    if (this.items[name]) {
-      throw new Error(`Item ${name} already registered`);
-    }
-
-    this.items[name] = {
-      creator,
-      options: actualOptions,
-    };
-    return name;
-  }
-
-  unregisterNamed(name: string): string {
-    if (this.items[name]) {
-      this.items[name] = undefined;
-      return name;
-    }
-    throw new Error(`Item ${name} not registered`);
-  }
-
-  getNamed<T extends ContainerItemType>(
-    name: string,
-    checkExists?: boolean
-  ): T | null {
     const meta = this.items[name];
-
     if (meta) {
       return this.instantiate(meta) as T;
     }
 
-    checkExists ??= this.config.checkExists;
+    const checkExists = options?.checkExists ?? this.config.checkExists;
     if (checkExists) {
-      throw new Error(`Item ${name} not registered`);
+      throw new Error(`Item '${name}' not registered`);
     }
 
     return null;
-  }
-
-  private getNamedAll(
-    dependencies: ContainerItemDependencies<ContainerItemType, unknown, unknown>
-  ): Record<string, unknown> {
-    const resolvedDependencies: Record<string, unknown> = {};
-
-    dependencies.forEach((dependency) => {
-      const name = typeof dependency == "string" ? dependency : dependency.name;
-      const resolvedDependency = this.getNamed(name);
-      if (resolvedDependency) {
-        resolvedDependencies[name] = resolvedDependency;
-      } else {
-        resolvedDependencies[name] = new ContainerItemNotFoundError(name);
-      }
-    });
-    return resolvedDependencies;
   }
 
   private instantiate<
@@ -247,7 +215,7 @@ export class Container {
     }
 
     const deps = meta.options?.dependencies
-      ? this.getNamedAll(meta.options.dependencies)
+      ? this.getAll(meta.options.dependencies)
       : undefined;
 
     const params: ContainerItemCreationParameters<
@@ -274,16 +242,17 @@ export class Container {
       );
     }
 
-    // meta.instance = meta.creator({
-    //   dependencies: deps,
-    //   args: meta.options?.args,
-    // });
-
     if (meta.instance && meta.options?.singleton) {
       // TODO: does this statement free up memory?
       meta.options.args = undefined;
     }
 
     return meta.instance;
+  }
+
+  private static getName(
+    id: ContainerItemId<ContainerItemType, DependenciesType, ArgumentsType>
+  ): string {
+    return typeof id == "string" ? id : id.name;
   }
 }
