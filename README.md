@@ -1,9 +1,13 @@
 # factsory
 
-[![npm version](https://badge.fury.io/js/factsory.svg)](https://badge.fury.io/js/factsory)
-[![GitHub version](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory.svg)](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory)
-![validate](https://github.com/tiagocpeixoto/factsory/workflows/validate/badge.svg)
+[badge.fury.io]: <> "[![npm version](https://badge.fury.io/js/factsory.svg)](https://badge.fury.io/js/factsory)"
+[badge.fury.io]: <> "[![GitHub version](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory.svg)](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory)"
+[GitHub badge]: <> "![validate](https://github.com/tiagocpeixoto/factsory/workflows/validate/badge.svg)"
+![npm version](https://img.shields.io/npm/v/factsory)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/tiagocpeixoto/factsory)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/tiagocpeixoto/factsory/validate)
 ![dependencies](https://img.shields.io/librariesio/github/tiagocpeixoto/factsory)
+![minzipped](https://img.shields.io/bundlephobia/minzip/factsory)
 ![license](https://img.shields.io/github/license/tiagocpeixoto/factsory)
 
 A kind of factory and DI patterns library targeted to Typescript (w/o decorators).
