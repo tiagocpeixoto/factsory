@@ -3,10 +3,10 @@
 [![npm version](https://badge.fury.io/js/factsory.svg)](https://badge.fury.io/js/factsory)
 [![GitHub version](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory.svg)](https://badge.fury.io/gh/tiagocpeixoto%2Ffactsory)
 ![validate](https://github.com/tiagocpeixoto/factsory/workflows/validate/badge.svg)
-![dependencies](https://david-dm.org/tiagocpeixoto/factsory.svg)
-![devDependencies](https://david-dm.org/tiagocpeixoto/factsory/dev-status.svg)
+![dependencies](https://img.shields.io/librariesio/github/tiagocpeixoto/factsory)
+![license](https://img.shields.io/github/license/tiagocpeixoto/factsory)
 
-A kind of factory and DI patterns library targeted to Typescript.
+A kind of factory and DI patterns library targeted to Typescript (w/o decorators).
 
 
 ## Topics
