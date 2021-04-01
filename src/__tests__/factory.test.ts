@@ -1,4 +1,4 @@
-import { DefaultFactory, Factory } from "..";
+import { createFactoryMethod, DefaultFactory, Factory } from "..";
 
 describe("factory tests", function () {
   describe("extending/implementing tests", function () {
@@ -14,9 +14,8 @@ describe("factory tests", function () {
 
     it("test implementing Factory", function () {
       class MyFactory implements Factory {
-        create(): string {
-          return "value";
-        }
+        readonly name = this.constructor.name;
+        create = createFactoryMethod(() => "value");
       }
 
       expect(new MyFactory().create()).toBe("value");

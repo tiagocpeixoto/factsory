@@ -1,8 +1,9 @@
 import {
+  Container,
+  createFactoryMethod,
+  CreationDependencies,
   DefaultFactory,
   Factory,
-  Container,
-  ContainerItemCreationDependencies,
   LazyInstance,
 } from "..";
 
@@ -20,7 +21,7 @@ describe("readme tests", function () {
       protected readonly myFactory: MyFactory;
 
       constructor(
-        params?: ContainerItemCreationDependencies<{
+        params?: CreationDependencies<{
           MyFactory: MyFactory;
         }>
       ) {
@@ -76,9 +77,8 @@ describe("readme tests", function () {
 
     it("test implementing Factory", function () {
       class MyFactory implements Factory<string> {
-        create(): string {
-          return "value";
-        }
+        readonly name = this.constructor.name;
+        create = createFactoryMethod(() => "value");
       }
 
       expect(new MyFactory().create()).toBe("value");

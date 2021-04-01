@@ -5,10 +5,11 @@ import chaiLike from "chai-like";
 import { mock } from "jest-mock-extended";
 import {
   Container,
-  ContainerItemCreationArguments,
-  ContainerItemCreationDependencies,
   ContainerItemNotFoundError,
   ContainerSpec,
+  createFactoryMethod,
+  CreationArguments,
+  CreationDependencies,
   Factory,
   SimpleFactory,
 } from "..";
@@ -83,10 +84,10 @@ describe("Container tests", function () {
 
   describe("register item without params tests", function () {
     const value = faker.lorem.word();
-    class TestFactory implements Factory {
-      create(): string {
-        return name;
-      }
+    class TestFactory implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
+      create = createFactoryMethod(() => name);
     }
     const name = TestFactory.name;
 
@@ -97,7 +98,7 @@ describe("Container tests", function () {
         "already registered"
       );
 
-      expect(Container.I.get(TestFactory)?.create()).toMatch(name);
+      expect(Container.I.get(TestFactory)?.name).toMatch(name);
 
       expect(Container.I.unregister(TestFactory)).toEqual(name);
       expect(() => Container.I.unregister(TestFactory)).toThrow(
@@ -112,19 +113,29 @@ describe("Container tests", function () {
     });
 
     it("test register empty name item", function () {
-      const anonymousRegister = Container.I.register(() => value);
+      const anonymousRegister = Container.I.register(
+        createFactoryMethod(() => value)
+      );
       expect(anonymousRegister).toEqual("");
 
-      expect(() => Container.I.register(() => value)).toThrow(
-        "already registered"
-      );
+      expect(() =>
+        Container.I.register(createFactoryMethod(() => value))
+      ).toThrow("already registered");
     });
 
     it("test register named item", function () {
-      expect(Container.I.register(() => value, { name })).toEqual(name);
-      expect(() => Container.I.register(() => value, { name })).toThrow(
-        "already registered"
-      );
+      expect(
+        Container.I.register(
+          createFactoryMethod(() => value),
+          { name }
+        )
+      ).toEqual(name);
+      expect(() =>
+        Container.I.register(
+          createFactoryMethod(() => value),
+          { name }
+        )
+      ).toThrow("already registered");
 
       expect(Container.I.get(name)).toBe(value);
 
@@ -142,7 +153,7 @@ describe("Container tests", function () {
       const name = faker.lorem.word();
       Container.I.registerAll([
         { creator: TestFactory },
-        { creator: () => value, options: { name } },
+        { creator: createFactoryMethod(() => value), options: { name } },
       ]);
       expect(Container.I.get(TestFactory)).toBeTruthy();
       expect(Container.I.get(name)).toBeTruthy();
@@ -173,18 +184,15 @@ describe("Container tests", function () {
 
   describe("register item with params tests", function () {
     class TestParamsFactory implements SimpleFactory<string | undefined> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
       private readonly value?: string;
 
-      constructor(params?: ContainerItemCreationArguments<string>) {
-        // if (!params || !params.args) {
-        //   throw new Error("Invalid arguments");
-        // }
+      constructor(params?: CreationArguments<string | undefined>) {
         this.value = params?.args;
       }
 
-      create(): string | undefined {
-        return this.value;
-      }
+      create = createFactoryMethod(() => this.value);
     }
     const name = TestParamsFactory.name;
     const param = faker.lorem.word();
@@ -214,13 +222,17 @@ describe("Container tests", function () {
     it("test register named item", function () {
       expect(
         Container.I.register(
-          (params?: ContainerItemCreationArguments<string>) =>
-            params?.args + "!",
+          createFactoryMethod(
+            (params?: CreationArguments<string>) => params?.args + "!"
+          ),
           { name, args: param }
         )
       ).toEqual(name);
       expect(() =>
-        Container.I.register(() => faker.lorem.word(), { name })
+        Container.I.register(
+          createFactoryMethod(() => faker.lorem.word()),
+          { name }
+        )
       ).toThrow("already registered");
 
       expect(Container.I.get(name)).toMatch(param + "!");
@@ -240,8 +252,9 @@ describe("Container tests", function () {
       Container.I.registerAll([
         { creator: TestParamsFactory, options: { args: param } },
         {
-          creator: (params?: ContainerItemCreationArguments<string>) =>
-            params?.args + "!",
+          creator: createFactoryMethod(
+            (params?: CreationArguments<string>) => params?.args + "!"
+          ),
           options: { name, args: param },
         },
       ]);
@@ -258,16 +271,16 @@ describe("Container tests", function () {
   });
 
   describe("Container singleton tests", function () {
-    class SingletonFactory implements Factory {
+    class SingletonFactory implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
       private readonly value: string;
 
       constructor() {
         this.value = faker.lorem.word();
       }
 
-      create(): string {
-        return this.value;
-      }
+      create = createFactoryMethod((): string => this.value);
     }
 
     beforeAll(function () {
@@ -290,17 +303,100 @@ describe("Container tests", function () {
     });
   });
 
+  describe("creation and get tests", function () {
+    const factoryValue = faker.lorem.word();
+    const constructorValue = faker.lorem.word();
+    const factoryMethodValue = faker.lorem.word();
+
+    class FactoryCreator implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
+      readonly value: string;
+
+      constructor() {
+        this.value = factoryValue;
+      }
+      create = createFactoryMethod((): string => this.value);
+    }
+
+    class ConstructorCreator {
+      readonly value: string | undefined;
+
+      constructor(params?: CreationArguments<string>) {
+        this.value = params?.args;
+      }
+    }
+
+    const factoryMethod = createFactoryMethod((): string => factoryMethodValue);
+    const nullValueFactoryMethod = createFactoryMethod((): unknown => null);
+    const failedFactoryMethod = createFactoryMethod((): string => {
+      throw new Error("Failed");
+    });
+
+    beforeAll(function () {
+      Container.I.register(FactoryCreator);
+      Container.I.register(ConstructorCreator, {
+        args: constructorValue,
+      });
+      Container.I.register(factoryMethod, { name: "factoryMethod" });
+      Container.I.register(nullValueFactoryMethod, {
+        name: "nullValueFactoryMethod",
+      });
+      Container.I.register(failedFactoryMethod, {
+        name: "failedFactoryMethod",
+      });
+    });
+
+    it("test successfully creation using factory", function () {
+      expect(Container.I.get(FactoryCreator)?.create()).toEqual(factoryValue);
+    });
+
+    it("test successfully get using factory", function () {
+      expect(Container.I.get(FactoryCreator)?.create()).toEqual(factoryValue);
+    });
+
+    it("test successfully creation using constructor", function () {
+      expect(Container.I.get(ConstructorCreator)).toEqual({
+        value: constructorValue,
+      });
+    });
+
+    it("test successfully get using constructor", function () {
+      expect(Container.I.get(ConstructorCreator)).toEqual({
+        value: constructorValue,
+      });
+    });
+
+    it("test successfully creation using factory method", function () {
+      expect(Container.I.get("factoryMethod")).toEqual(factoryMethodValue);
+    });
+
+    it("test successfully get using factory method", function () {
+      expect(Container.I.get("factoryMethod")).toEqual(factoryMethodValue);
+    });
+
+    it("test failed creation with null value", function () {
+      expect(() => Container.I.get("nullValueFactoryMethod")).toThrow(
+        "Could not create the instance"
+      );
+    });
+
+    it("test failed creation with exception", function () {
+      expect(() => Container.I.get("failedFactoryMethod")).toThrow("Failed");
+    });
+  });
+
   describe("Container non singleton tests", function () {
-    class NonSingletonFactory implements Factory {
+    class NonSingletonFactory implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
       private readonly value: string;
 
       constructor() {
         this.value = faker.lorem.word();
       }
 
-      create(): string {
-        return this.value;
-      }
+      create = createFactoryMethod((): string => this.value);
     }
 
     beforeAll(function () {
@@ -346,16 +442,18 @@ describe("Container tests", function () {
     const myFactoryDependantValue = faker.lorem.word();
 
     class MyFactoryDependency implements Factory<string> {
-      create(): string {
-        return myFactoryDependencyValue;
-      }
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
+      create = createFactoryMethod((): string => myFactoryDependencyValue);
     }
 
     class MyFactoryDependant implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
       protected readonly myFactoryDependency: MyFactoryDependency;
 
       constructor(
-        params?: ContainerItemCreationDependencies<{
+        params?: CreationDependencies<{
           MyFactoryDependency: MyFactoryDependency;
         }>
       ) {
@@ -370,9 +468,7 @@ describe("Container tests", function () {
         }
       }
 
-      create(): string {
-        return myFactoryDependantValue;
-      }
+      create = createFactoryMethod((): string => myFactoryDependantValue);
 
       get dep(): MyFactoryDependency {
         return this.myFactoryDependency;
@@ -409,16 +505,18 @@ describe("Container tests", function () {
     const myFactoryNamedDependantValue = faker.lorem.word();
 
     class MyFactoryNamedDependency implements Factory<string> {
-      create(): string {
-        return myFactoryNamedDependencyValue;
-      }
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
+      create = createFactoryMethod((): string => myFactoryNamedDependencyValue);
     }
 
     class MyFactoryNamedDependant implements Factory<string> {
+      readonly isFactory = true;
+      readonly name = this.constructor.name;
       protected readonly dependency: MyFactoryNamedDependency;
 
       constructor(
-        params?: ContainerItemCreationDependencies<{
+        params?: CreationDependencies<{
           MyFactoryNamedDependency: MyFactoryNamedDependency;
         }>
       ) {
@@ -433,9 +531,7 @@ describe("Container tests", function () {
         }
       }
 
-      create(): string {
-        return myFactoryNamedDependantValue;
-      }
+      create = createFactoryMethod((): string => myFactoryNamedDependantValue);
 
       get dep(): MyFactoryNamedDependency {
         return this.dependency;
