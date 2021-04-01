@@ -3,10 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": ".",
-    "outDir": "dist"
-//    "paths": {
-//      "@root/*": ["src/*"]
-//    }
+    "outDir": "dist",
+    "paths": {
+      "@src/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*",

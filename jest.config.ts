@@ -1,4 +1,5 @@
 import config from "./jest.config.base";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pack = require("./package.json");
 
 module.exports = Object.assign(Object.create(null), config, {

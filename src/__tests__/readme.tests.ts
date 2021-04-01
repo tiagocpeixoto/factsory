@@ -8,6 +8,22 @@ import {
 } from "..";
 
 describe("readme tests", function () {
+  describe("container registration tests", function () {
+    it("test register creation functions", function () {
+      Container.I.register(
+        createFactoryMethod(() => "value"),
+        { name: "MyFactoryWithValue" }
+      );
+      expect(Container.I.get("MyFactoryWithValue")).toEqual("value");
+
+      Container.I.register(
+        createFactoryMethod((params) => params?.args),
+        { name: "MyFactoryWithArgs", args: "value" }
+      );
+      expect(Container.I.get("MyFactoryWithArgs")).toEqual("value");
+    });
+  });
+
   describe("container tests", function () {
     // the dependency
     class MyFactory extends DefaultFactory<string> {

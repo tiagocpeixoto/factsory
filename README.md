@@ -48,7 +48,7 @@ yarn add factsory
 
     ``` ts
       class MyFactory extends DefaultFactory<string> {
-        instantiate(): unknown {
+        instantiate(): string {
           return "value";
         }
       }
@@ -96,14 +96,17 @@ yarn add factsory
    Container.I.register(MyFactory, { name: "MyFactoryCustomName" });
    ```
 
-1. registering a creation function:
+1. registering a creation function (factory method) using the ```createFactoryMethod```:
 
    ``` ts
-   // name = ""
-   Container.I.register(() => "value");
+   // name will be set to ""
+   Container.I.register(createFactoryMethod(() => "value"));
    
    // or
-   Container.I.register(() => "value", { name: "MyFactory" });
+   Container.I.register(createFactoryMethod(() => "value"), { name: "MyFactoryWithValue" });
+   
+   // or
+   Container.I.register(createFactoryMethod((params) => params?.args), { name: "MyFactoryWithArgs", args: "value" });
    ```
    
 - It's also possible to define dependencies, which will be injected during the object creation:
@@ -159,7 +162,7 @@ yarn add factsory
 
 ### Object claim from Container
 
-- After registering a class or a creation function, it can also be claimed in two ways: 
+- After registering a class or a creation function (factory method), it can also be claimed in two ways: 
 
 1. If it is a class, it can be claimed by the `Container.I.get` method using the class name as a parameter:
 
