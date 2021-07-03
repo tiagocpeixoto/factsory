@@ -48,17 +48,17 @@ export type CreationArguments<A = unknown> = Omit<
   "dependencies"
 >;
 
-export type CreationParameters<D extends Items = Items, A = unknown> = {
+export interface CreationParameters<D extends Items = Items, A = unknown> {
   readonly dependencies?: D;
   readonly args?: A;
-};
+}
 
-export type RegistrationOptions<A> = {
+export interface RegistrationOptions<A> {
   name?: string;
   singleton?: boolean;
   dependencies?: ItemId[];
   args?: A;
-};
+}
 
 export type ItemId<T = unknown, D extends Items = Items, A = unknown> =
   | string
@@ -68,9 +68,9 @@ export const defaultItemRegistrationOptions: RegistrationOptions<unknown> = {
   singleton: true,
 };
 
-export type ExistsConfig = {
+export interface ExistsConfig {
   checkExists?: boolean;
-};
+}
 
 export type ContainerConfig = ExistsConfig;
 
@@ -86,11 +86,11 @@ type ItemMeta<T = unknown, D extends Items = Items, A = unknown> = ItemRegister<
   instance?: T;
 };
 
-export type ItemRegister<T, D extends Items, A> = {
+export interface ItemRegister<T, D extends Items, A> {
   readonly creator: Creator<T, D, A>;
   // TODO: should be RegistrationOptions<A> ?
   readonly options?: RegistrationOptions<unknown>;
-};
+}
 
 export type ItemsRegister = ItemRegister<unknown, never, never>[];
 
@@ -249,6 +249,6 @@ export class Container implements ContainerSpec {
   }
 
   private static getName<T, D extends Items, A>(id: ItemId<T, D, A>): string {
-    return typeof id == "string" ? id : id.name;
+    return typeof id === "string" ? id : id.name;
   }
 }

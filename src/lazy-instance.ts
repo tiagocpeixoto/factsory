@@ -1,6 +1,11 @@
-export type InitFunction<T> = () => T;
+export interface InitFunction<T> {
+  (): T;
+}
 
-export type InitOptions = { name?: string; eagerInit?: boolean };
+export interface InitOptions {
+  name?: string;
+  eagerInit?: boolean;
+}
 
 export class LazyInstance<T> {
   private instance?: T;

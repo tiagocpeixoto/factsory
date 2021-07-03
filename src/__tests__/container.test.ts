@@ -1,7 +1,7 @@
-import faker from "faker";
 import chai from "chai";
-import chaiThings from "chai-things";
 import chaiLike from "chai-like";
+import chaiThings from "chai-things";
+import faker from "faker";
 import { mock } from "jest-mock-extended";
 import {
   Container,
@@ -60,6 +60,7 @@ describe("Container tests", function () {
     //     .mockReturnThis(),
     // }));
     const mockedSpec = mock<ContainerSpec>();
+
     it("test mocked spec", function () {
       Container.impl = mockedSpec;
       expect(Container.I).toBe(mockedSpec);

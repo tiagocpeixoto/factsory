@@ -1,10 +1,11 @@
 module.exports = {
   root: true,
   env: {
+    es2020: true,
     browser: false,
-    es6: true,
     node: true,
-    jest: true,
+    // jest: true,
+    "jest/globals": true,
   },
   globals: {
     Atomics: "readonly",
@@ -12,21 +13,48 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaVersion: 2019,
+    ecmaVersion: 2020,
     sourceType: "module",
+    project: ["./tsconfig.eslint.json"],
   },
-  plugins: ["@typescript-eslint", "jest"],
+  plugins: [
+    "@typescript-eslint",
+    "jest",
+    "jest-formatting",
+    "promise",
+    "import",
+    "etc",
+    "node",
+    "prettier",
+  ],
   extends: [
     // 'standard',
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:jest/recommended",
-    "prettier",
+    "plugin:jest/style",
+    "plugin:jest-formatting/recommended",
+    "plugin:promise/recommended",
+    "plugin:prettier/recommended",
+    "plugin:etc/recommended",
   ],
   rules: {
-    '@typescript-eslint/no-var-requires': "warn",
+    "@typescript-eslint/no-var-requires": "warn",
     "jest/no-standalone-expect": "warn",
     "jest/no-conditional-expect": "warn",
     "jest/no-export": "warn",
+    "etc/prefer-interface": "error",
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "parent", "sibling", "index"],
+        // "newlines-between": "always",
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+      },
+    ],
+    eqeqeq: "warn",
   },
 };

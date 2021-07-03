@@ -18,7 +18,8 @@ export abstract class DefaultFactory<
   T = unknown,
   D extends Items = Items,
   A = unknown
-> implements Factory<T, D, A> {
+> implements Factory<T, D, A>
+{
   readonly name = this.constructor.name;
   protected dependencies?: Items;
   protected args?: A;

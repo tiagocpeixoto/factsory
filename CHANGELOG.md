@@ -1,3 +1,9 @@
+# 0.7.0 (2021-07-03)
+
+* add new eslint plugins and rules
+* update project dependencies versions
+
+
 # 0.6.0
 
 * add CHANGELOG.md

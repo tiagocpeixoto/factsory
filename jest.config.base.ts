@@ -1,4 +1,5 @@
 import type { Config } from "@jest/types";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { jsWithTs: tsjPreset } = require("ts-jest/presets");
 
 const config: Config.InitialOptions = {
@@ -38,7 +39,7 @@ const config: Config.InitialOptions = {
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
-  setupFilesAfterEnv: ["jest-allure/dist/setup"],
+  // setupFilesAfterEnv: ["jest-allure/dist/setup"],
 
   // The test environment that will be used for testing
   testEnvironment: "node",
