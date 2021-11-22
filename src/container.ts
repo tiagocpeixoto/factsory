@@ -228,24 +228,22 @@ export class Container implements ContainerSpec {
       args: meta.options?.args,
     };
 
-    {
-      if ("isFactoryMethod" in meta.creator) {
-        meta.instance = meta.creator(params);
-      } else {
-        meta.instance = new meta.creator(params);
-      }
-
-      if (meta.instance && meta.options?.singleton) {
-        // TODO: does this statement free up memory?
-        meta.options.args = undefined;
-      }
-
-      if (!meta.instance) {
-        throw new Error("Could not create the instance");
-      }
-
-      return meta.instance;
+    if ("isFactoryMethod" in meta.creator) {
+      meta.instance = meta.creator(params);
+    } else {
+      meta.instance = new meta.creator(params);
     }
+
+    if (meta.instance && meta.options?.singleton) {
+      // TODO: does this statement free up memory?
+      meta.options.args = undefined;
+    }
+
+    if (!meta.instance) {
+      throw new Error("Could not create the instance");
+    }
+
+    return meta.instance;
   }
 
   private static getName<T, D extends Items, A>(id: ItemId<T, D, A>): string {

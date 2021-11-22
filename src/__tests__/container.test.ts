@@ -298,6 +298,7 @@ describe("Container tests", function () {
       const factory2 = Container.I.get(SingletonFactory);
       expect(factory2).toBeTruthy();
       expect(factory2).toEqual(factory1);
+      expect(factory2).toBe(factory1);
 
       const value2 = factory2?.create();
       expect(value2).toEqual(value1);
