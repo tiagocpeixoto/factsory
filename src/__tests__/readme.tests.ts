@@ -14,13 +14,13 @@ describe("readme tests", function () {
         createFactoryMethod(() => "value"),
         { name: "MyFactoryWithValue" }
       );
-      expect(Container.I.get("MyFactoryWithValue")).toEqual("value");
+      expect(Container.I.get("MyFactoryWithValue")).toBe("value");
 
       Container.I.register(
         createFactoryMethod((params) => params?.args),
         { name: "MyFactoryWithArgs", args: "value" }
       );
-      expect(Container.I.get("MyFactoryWithArgs")).toEqual("value");
+      expect(Container.I.get("MyFactoryWithArgs")).toBe("value");
     });
   });
 

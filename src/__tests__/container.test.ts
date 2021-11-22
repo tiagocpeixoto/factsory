@@ -117,7 +117,7 @@ describe("Container tests", function () {
       const anonymousRegister = Container.I.register(
         createFactoryMethod(() => value)
       );
-      expect(anonymousRegister).toEqual("");
+      expect(anonymousRegister).toBe("");
 
       expect(() =>
         Container.I.register(createFactoryMethod(() => value))
