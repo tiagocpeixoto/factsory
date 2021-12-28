@@ -1,6 +1,8 @@
-# 0.7.1 (TBA)
+# 1.0.0 (2021-12-28)
+
 * upgrade dependencies
 * fix lint errors
+* add AsyncLazyInstance
 
 
 # 0.7.0 (2021-07-03)
