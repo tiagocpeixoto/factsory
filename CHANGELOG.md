@@ -1,4 +1,4 @@
-# 1.1.0 (TBA)
+# 1.1.0 (2021-12-29)
 
 * add lock to AsyncLazyInstance
 
