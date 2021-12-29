@@ -30,6 +30,31 @@ describe("async-lazy-instance tests", function () {
     expect(value).toBe(getValue);
   });
 
+  it("test with a mocked lock", async function () {
+    const release = jest.fn();
+    const lock: Lock = {
+      acquire: jest.fn().mockReturnValue(release),
+    };
+
+    let value = "";
+
+    const asyncLazyInstance = new AsyncLazyInstance(
+      async () => (value = faker.lorem.word()),
+      {
+        lock,
+      }
+    );
+
+    const getValue1 = await asyncLazyInstance.get;
+    const getValue2 = await asyncLazyInstance.get;
+
+    expect(value).toBeTruthy();
+    expect(value).toBe(getValue1);
+    expect(value).toBe(getValue2);
+    expect(lock.acquire).toHaveBeenCalledTimes(2);
+    expect(release).toHaveBeenCalledTimes(2);
+  });
+
   it("test eager init with a mocked lock", async function () {
     const release = jest.fn();
     const lock: Lock = {
@@ -54,6 +79,24 @@ describe("async-lazy-instance tests", function () {
     expect(value).toBe(getValue2);
     expect(lock.acquire).toHaveBeenCalledTimes(2);
     expect(release).toHaveBeenCalledTimes(2);
+  });
+
+  it("test with a real lock", async function () {
+    let value = "";
+
+    const asyncLazyInstance = new AsyncLazyInstance(
+      async () => (value = faker.lorem.word()),
+      {
+        lock: new Mutex(),
+      }
+    );
+
+    const getValue1 = await asyncLazyInstance.get;
+    const getValue2 = await asyncLazyInstance.get;
+
+    expect(value).toBeTruthy();
+    expect(value).toBe(getValue1);
+    expect(value).toBe(getValue2);
   });
 
   it("test eager init with a real lock", async function () {
