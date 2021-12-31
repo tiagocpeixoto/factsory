@@ -1,4 +1,6 @@
+import { Mutex } from "async-mutex";
 import {
+  AsyncLazyInstance,
   Container,
   createFactoryMethod,
   CreationDependencies,
@@ -112,7 +114,45 @@ describe("readme tests", function () {
       // console.log(value); // prints "initialized"
 
       expect(value).toBe("");
-      expect(lazyInstance.get).toBe("initialized");
+      expect(lazyInstance.I).toBe("initialized");
+      expect(lazyInstance.getI()).toBe("initialized");
+      expect(value).toBe("initialized");
+    });
+  });
+
+  describe("async lazy-I tests", function () {
+    it("test readme", async function () {
+      let value = "";
+
+      const asyncLazyInstance = new AsyncLazyInstance(
+        async () => (value = "initialized")
+      );
+
+      // console.log(value); // prints ""
+      // console.log(lazyInstance.get); // prints "initialized"
+      // console.log(value); // prints "initialized"
+
+      expect(value).toBe("");
+      expect(await asyncLazyInstance.I).toBe("initialized");
+      expect(await asyncLazyInstance.getI()).toBe("initialized");
+      expect(value).toBe("initialized");
+    });
+
+    it("test readme with concurrent control", async function () {
+      let value = "";
+
+      const asyncLazyInstance = new AsyncLazyInstance(
+        async () => (value = "initialized"),
+        { lock: new Mutex() }
+      );
+
+      // console.log(value); // prints ""
+      // console.log(lazyInstance.get); // prints "initialized"
+      // console.log(value); // prints "initialized"
+
+      expect(value).toBe("");
+      expect(await asyncLazyInstance.I).toBe("initialized");
+      expect(await asyncLazyInstance.getI()).toBe("initialized");
       expect(value).toBe("initialized");
     });
   });

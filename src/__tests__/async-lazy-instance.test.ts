@@ -11,8 +11,10 @@ describe("async-lazy-instance tests", function () {
     );
 
     expect(value).toBeFalsy();
-    const getValue = await asyncLazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = await asyncLazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = await asyncLazyInstance.getI();
+    expect(value).toBe(getValue2);
   });
 
   it("test eager init", async function () {
@@ -26,8 +28,10 @@ describe("async-lazy-instance tests", function () {
     );
 
     expect(value).toBeTruthy();
-    const getValue = await asyncLazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = await asyncLazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = await asyncLazyInstance.getI();
+    expect(value).toBe(getValue2);
   });
 
   it("test with a mocked lock", async function () {
@@ -45,8 +49,8 @@ describe("async-lazy-instance tests", function () {
       }
     );
 
-    const getValue1 = await asyncLazyInstance.get;
-    const getValue2 = await asyncLazyInstance.get;
+    const getValue1 = await asyncLazyInstance.I;
+    const getValue2 = await asyncLazyInstance.getI();
 
     expect(value).toBeTruthy();
     expect(value).toBe(getValue1);
@@ -71,8 +75,8 @@ describe("async-lazy-instance tests", function () {
       }
     );
 
-    const getValue1 = await asyncLazyInstance.get;
-    const getValue2 = await asyncLazyInstance.get;
+    const getValue1 = await asyncLazyInstance.I;
+    const getValue2 = await asyncLazyInstance.getI();
 
     expect(value).toBeTruthy();
     expect(value).toBe(getValue1);
@@ -91,8 +95,8 @@ describe("async-lazy-instance tests", function () {
       }
     );
 
-    const getValue1 = await asyncLazyInstance.get;
-    const getValue2 = await asyncLazyInstance.get;
+    const getValue1 = await asyncLazyInstance.I;
+    const getValue2 = await asyncLazyInstance.getI();
 
     expect(value).toBeTruthy();
     expect(value).toBe(getValue1);
@@ -110,8 +114,8 @@ describe("async-lazy-instance tests", function () {
       }
     );
 
-    const getValue1 = await asyncLazyInstance.get;
-    const getValue2 = await asyncLazyInstance.get;
+    const getValue1 = await asyncLazyInstance.I;
+    const getValue2 = await asyncLazyInstance.getI();
 
     expect(value).toBeTruthy();
     expect(value).toBe(getValue1);
@@ -130,8 +134,10 @@ describe("async-lazy-instance tests", function () {
     );
     expect(value).toBeFalsy();
 
-    const getValue = await asyncLazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = await asyncLazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = await asyncLazyInstance.getI();
+    expect(value).toBe(getValue2);
 
     expect(asyncLazyInstance.instanceName).toMatch(name);
   });
@@ -139,14 +145,16 @@ describe("async-lazy-instance tests", function () {
   it("test reset", async function () {
     let counter = 0;
     const asyncLazyInstance = new AsyncLazyInstance(async () => ++counter);
-    expect(await asyncLazyInstance.get).toBe(1);
+    expect(await asyncLazyInstance.I).toBe(1);
     expect(counter).toBe(1);
     // again
-    expect(await asyncLazyInstance.get).toBe(1);
+    expect(await asyncLazyInstance.I).toBe(1);
+    expect(await asyncLazyInstance.getI()).toBe(1);
     expect(counter).toBe(1);
     // reset
     asyncLazyInstance.reset();
-    expect(await asyncLazyInstance.get).toBe(2);
+    expect(await asyncLazyInstance.I).toBe(2);
+    expect(await asyncLazyInstance.getI()).toBe(2);
     expect(counter).toBe(2);
   });
 });

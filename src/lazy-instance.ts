@@ -34,7 +34,11 @@ export class LazyInstance<T> {
     return this.name as string;
   }
 
-  get get(): T {
+  get I(): T {
+    return this.getI();
+  }
+
+  getI(): T {
     // if (this.instance == null) {
     //     console.debug(`Lazying init ${this.name}...`)
     // }

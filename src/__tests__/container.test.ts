@@ -187,13 +187,13 @@ describe("Container tests", function () {
     class TestParamsFactory implements SimpleFactory<string | undefined> {
       readonly isFactory = true;
       readonly name = this.constructor.name;
-      private readonly value?: string;
+      readonly #value?: string;
 
       constructor(params?: CreationArguments<string | undefined>) {
-        this.value = params?.args;
+        this.#value = params?.args;
       }
 
-      create = createFactoryMethod(() => this.value);
+      create = createFactoryMethod(() => this.#value);
     }
     const name = TestParamsFactory.name;
     const param = faker.lorem.word();
@@ -275,13 +275,13 @@ describe("Container tests", function () {
     class SingletonFactory implements Factory<string> {
       readonly isFactory = true;
       readonly name = this.constructor.name;
-      private readonly value: string;
+      readonly #value: string;
 
       constructor() {
-        this.value = faker.lorem.word();
+        this.#value = faker.lorem.word();
       }
 
-      create = createFactoryMethod((): string => this.value);
+      create = createFactoryMethod((): string => this.#value);
     }
 
     beforeAll(function () {
@@ -392,20 +392,20 @@ describe("Container tests", function () {
     class NonSingletonFactory implements Factory<string> {
       readonly isFactory = true;
       readonly name = this.constructor.name;
-      private readonly value: string;
+      readonly #value: string;
 
       constructor() {
-        this.value = faker.lorem.word();
+        this.#value = faker.lorem.word();
       }
 
-      create = createFactoryMethod((): string => this.value);
+      create = createFactoryMethod((): string => this.#value);
     }
 
     beforeAll(function () {
       Container.I.register(NonSingletonFactory, { singleton: false });
     });
 
-    it("test nom singleton creation", function () {
+    it("test non singleton creation", function () {
       const factory1 = Container.I.get(NonSingletonFactory);
       expect(factory1).toBeTruthy();
 

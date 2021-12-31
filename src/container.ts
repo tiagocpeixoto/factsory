@@ -141,7 +141,7 @@ export class Container implements ContainerSpec {
   }
 
   static get I(): ContainerSpec {
-    return this.instance.get;
+    return this.instance.I;
   }
 
   setConfig(config: ContainerConfig): void {
@@ -175,7 +175,7 @@ export class Container implements ContainerSpec {
   }
 
   unregister<T, D extends Items, A>(id: ItemId<T, D, A>): string {
-    const name = Container.getName(id);
+    const name = Container.#getName(id);
     if (this.items[name]) {
       this.items[name] = undefined;
       return name;
@@ -187,7 +187,7 @@ export class Container implements ContainerSpec {
     const resolvedItems: Items = {};
 
     ids.forEach((id) => {
-      const name = Container.getName(id);
+      const name = Container.#getName(id);
       const resolvedDependency = this.get(name, options);
       if (resolvedDependency) {
         resolvedItems[name] = resolvedDependency;
@@ -199,11 +199,11 @@ export class Container implements ContainerSpec {
   }
 
   get<T>(id: ItemId<T>, options?: ExistsConfig): T | null {
-    const name = Container.getName(id);
+    const name = Container.#getName(id);
 
     const meta = this.items[name];
     if (meta) {
-      return this.instantiate(meta) as T;
+      return this.#instantiate(meta) as T;
     }
 
     const checkExists = options?.checkExists ?? this.config.checkExists;
@@ -214,7 +214,7 @@ export class Container implements ContainerSpec {
     return null;
   }
 
-  private instantiate<T>(meta: ItemMeta<T>): T {
+  #instantiate<T>(meta: ItemMeta<T>): T {
     if (meta.options?.singleton && meta.instance) {
       return meta.instance;
     }
@@ -246,7 +246,7 @@ export class Container implements ContainerSpec {
     return meta.instance;
   }
 
-  private static getName<T, D extends Items, A>(id: ItemId<T, D, A>): string {
+  static #getName<T, D extends Items, A>(id: ItemId<T, D, A>): string {
     return typeof id === "string" ? id : id.name;
   }
 }

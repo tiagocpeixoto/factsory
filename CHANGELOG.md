@@ -1,6 +1,8 @@
-# 1.1.1 (TBA)
+# 2.0.0 (31/12/2021)
 
-* ...
+* BREAK: rename singleton property from "get" to "I"
+* create singleton method "getI()"
+* add AsyncLazyInstance examples to README
 
 
 # 1.1.0 (2021-12-29)

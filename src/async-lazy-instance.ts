@@ -39,19 +39,30 @@ export class AsyncLazyInstance<T> {
     return this.name as string;
   }
 
-  get get(): Promise<T> {
+  get I(): Promise<T> {
+    return this.getI();
+  }
+
+  async getI(): Promise<T> {
+    const release = await this.#lock?.acquire();
+    try {
+      return this.#instance ?? (this.#instance = await this.#asyncLazyInit());
+    } finally {
+      release?.();
+    }
+
     /**
      * It's an IIFE
      * @see https://developer.mozilla.org/en-US/docs/Glossary/IIFE
      */
-    return (async () => {
-      const release = await this.#lock?.acquire();
-      try {
-        return this.#instance ?? (this.#instance = await this.#asyncLazyInit());
-      } finally {
-        release?.();
-      }
-    })();
+    // return (async () => {
+    //   const release = await this.#lock?.acquire();
+    //   try {
+    //     return this.#instance ?? (this.#instance = await this.#asyncLazyInit());
+    //   } finally {
+    //     release?.();
+    //   }
+    // })();
   }
 
   reset(): void {

@@ -8,8 +8,10 @@ describe("lazy-instance tests", function () {
     const lazyInstance = new LazyInstance(() => (value = faker.lorem.word()));
 
     expect(value).toBeFalsy();
-    const getValue = lazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = lazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = lazyInstance.getI();
+    expect(value).toBe(getValue2);
   });
 
   it("test eager init", function () {
@@ -20,8 +22,10 @@ describe("lazy-instance tests", function () {
     });
 
     expect(value).toBeTruthy();
-    const getValue = lazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = lazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = lazyInstance.getI();
+    expect(value).toBe(getValue2);
   });
 
   it("test named create and get", function () {
@@ -33,8 +37,10 @@ describe("lazy-instance tests", function () {
     });
     expect(value).toBeFalsy();
 
-    const getValue = lazyInstance.get;
-    expect(value).toBe(getValue);
+    const getValue1 = lazyInstance.I;
+    expect(value).toBe(getValue1);
+    const getValue2 = lazyInstance.I;
+    expect(value).toBe(getValue2);
 
     expect(lazyInstance.instanceName).toMatch(name);
   });
@@ -42,14 +48,17 @@ describe("lazy-instance tests", function () {
   it("test reset", function () {
     let counter = 0;
     const lazyInstance = new LazyInstance(() => ++counter);
-    expect(lazyInstance.get).toBe(1);
+    expect(lazyInstance.I).toBe(1);
+    expect(lazyInstance.getI()).toBe(1);
     expect(counter).toBe(1);
     // again
-    expect(lazyInstance.get).toBe(1);
+    expect(lazyInstance.I).toBe(1);
+    expect(lazyInstance.getI()).toBe(1);
     expect(counter).toBe(1);
     // reset
     lazyInstance.reset();
-    expect(lazyInstance.get).toBe(2);
+    expect(lazyInstance.I).toBe(2);
+    expect(lazyInstance.getI()).toBe(2);
     expect(counter).toBe(2);
   });
 });

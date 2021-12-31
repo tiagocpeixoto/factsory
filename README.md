@@ -187,10 +187,48 @@ yarn add factsory
     const lazyInstance = new LazyInstance(() => (value = "initialized"));
 
     console.log(value);            // prints ""
-    console.log(lazyInstance.get); // prints "initialized"
+    console.log(lazyInstance.I); // prints "initialized"
+    // or 
+    console.log(lazyInstance.getI()); // prints "initialized"
     console.log(value);            // prints "initialized"
     ```
 
+
+### Async Lazy instance
+
+- It's possible to use the `AsyncLazyInstance` class to lazy initialize an object:
+
+    ``` ts
+    let value = "";
+
+    const asyncLazyInstance = new AsyncLazyInstance(async () => (value = "initialized"));
+
+    console.log(value);                     // prints ""
+    console.log(await asyncLazyInstance.I); // prints "initialized"
+    // or 
+    console.log(await asyncLazyInstance.getI()); // prints "initialized"
+    console.log(value);                          // prints "initialized"
+    ```
+
+- It's also possible to use the `AsyncLazyInstance` class to lazy initialize an object with concurrency lock (mutex-like) control:
+
+    ``` ts
+    let value = "";
+
+    const asyncLazyInstance = new AsyncLazyInstance(
+      async () => (value = "initialized"),
+      /** 
+       * Using async-mutex lib as an example 
+       * @see https://www.npmjs.com/package/async-mutex
+       */
+      { lock: new Mutex() }
+    );
+
+    console.log(value);                     // prints ""
+    console.log(await asyncLazyInstance.I); // prints "initialized"
+    // or 
+    console.log(await asyncLazyInstance.getI()); // prints "initialized"
+    console.log(value);                          // prints "initialized"
 
 ## License
 
