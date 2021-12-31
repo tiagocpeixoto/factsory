@@ -186,11 +186,11 @@ yarn add factsory
 
     const lazyInstance = new LazyInstance(() => (value = "initialized"));
 
-    console.log(value);            // prints ""
+    console.log(value);          // prints ""
     console.log(lazyInstance.I); // prints "initialized"
     // or 
     console.log(lazyInstance.getI()); // prints "initialized"
-    console.log(value);            // prints "initialized"
+    console.log(value);               // prints "initialized"
     ```
 
 
