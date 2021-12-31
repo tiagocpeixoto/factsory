@@ -106,7 +106,7 @@ yarn add factsory
    Container.I.register(createFactoryMethod(() => "value"), { name: "MyFactoryWithValue" });
    
    // or
-   Container.I.register(createFactoryMethod((params) => params?.args), { name: "MyFactoryWithArgs", args: "value" });
+   Container.I.register(createFactoryMethod((params?: CreationParameters) => params?.args), { name: "MyFactoryWithArgs", args: "value" });
    ```
    
 - It's also possible to define dependencies, which will be injected during the object creation:

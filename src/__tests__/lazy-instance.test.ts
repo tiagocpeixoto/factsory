@@ -1,5 +1,5 @@
 import * as faker from "faker";
-import { LazyInstance } from "..";
+import { LazyInstance } from "../lazy-instance";
 
 describe("lazy-instance tests", function () {
   it("test default create and get", function () {

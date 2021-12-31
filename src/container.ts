@@ -1,4 +1,15 @@
-import { LazyInstance } from ".";
+import {
+  ContainerConfig,
+  ContainerSpec,
+  Creator,
+  ExistsConfig,
+  ItemId,
+  ItemMeta,
+  Items,
+  ItemsRegister,
+  RegistrationOptions,
+} from "./container-spec";
+import { LazyInstance } from "./lazy-instance";
 
 export class ContainerItemNotFoundError extends Error {
   constructor(public readonly containerItemName: string, message?: string) {
@@ -9,105 +20,13 @@ export class ContainerItemNotFoundError extends Error {
   }
 }
 
-export type Items = Record<string, unknown>;
-
-export type Creator<
-  T = unknown,
-  D extends Items | never = Items,
-  A = unknown | never
-> = Constructor<T, D, A> | FactoryMethod<T, D, A>;
-
-export interface Constructor<
-  T = unknown,
-  D extends Items = Items,
-  A = unknown
-> {
-  new (params?: CreationParameters<D, A>): T;
-}
-
-export interface FactoryMethod<
-  T = unknown,
-  D extends Items = Items,
-  A = unknown
-> extends FactoryFn<T, D, A> {
-  // (params?: CreationParameters<A>): T;
-  readonly isFactoryMethod: true;
-}
-
-export interface FactoryFn<T = unknown, D extends Items = Items, A = unknown> {
-  (params?: CreationParameters<D, A>): T;
-}
-
-export type CreationDependencies<D extends Items> = Omit<
-  CreationParameters<D, never>,
-  "args"
->;
-
-export type CreationArguments<A = unknown> = Omit<
-  CreationParameters<never, A>,
-  "dependencies"
->;
-
-export interface CreationParameters<D extends Items = Items, A = unknown> {
-  readonly dependencies?: D;
-  readonly args?: A;
-}
-
-export interface RegistrationOptions<A> {
-  name?: string;
-  singleton?: boolean;
-  dependencies?: ItemId[];
-  args?: A;
-}
-
-export type ItemId<T = unknown, D extends Items = Items, A = unknown> =
-  | string
-  | Creator<T, D, A>;
-
 export const defaultItemRegistrationOptions: RegistrationOptions<unknown> = {
   singleton: true,
 };
 
-export interface ExistsConfig {
-  checkExists?: boolean;
-}
-
-export type ContainerConfig = ExistsConfig;
-
 export const defaultContainerConfig: ContainerConfig = {
   checkExists: false,
 };
-
-type ItemMeta<T = unknown, D extends Items = Items, A = unknown> = ItemRegister<
-  T,
-  D,
-  A
-> & {
-  instance?: T;
-};
-
-export interface ItemRegister<T, D extends Items, A> {
-  readonly creator: Creator<T, D, A>;
-  // TODO: should be RegistrationOptions<A> ?
-  readonly options?: RegistrationOptions<unknown>;
-}
-
-export type ItemsRegister = ItemRegister<unknown, never, never>[];
-
-export interface ContainerSpec {
-  setConfig(config: ContainerConfig): void;
-  registerAll<T extends ItemsRegister>(items: T): void;
-  register<T, D extends Items, A>(
-    creator: Creator<T, D, A>,
-    options?: RegistrationOptions<unknown>
-  ): string;
-  unregister<T, D extends Items, A>(id: ItemId<T, D, A>): string;
-  getAll(ids: ItemId<unknown, never, never>[], options?: ExistsConfig): Items;
-  get<T, D extends Items, A>(
-    id: ItemId<T, D, A>,
-    options?: ExistsConfig
-  ): T | null;
-}
 
 export class Container implements ContainerSpec {
   protected static specImpl: ContainerSpec | null;

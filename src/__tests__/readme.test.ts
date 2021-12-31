@@ -1,13 +1,9 @@
+import { AsyncLazyInstance } from "@src/async-lazy-instance";
+import { CreationDependencies, CreationParameters } from "@src/container-spec";
+import { LazyInstance } from "@src/lazy-instance";
 import { Mutex } from "async-mutex";
-import {
-  AsyncLazyInstance,
-  Container,
-  createFactoryMethod,
-  CreationDependencies,
-  DefaultFactory,
-  Factory,
-  LazyInstance,
-} from "..";
+import { Container } from "../container";
+import { createFactoryMethod, DefaultFactory, Factory } from "../factory";
 
 describe("readme tests", function () {
   describe("container registration tests", function () {
@@ -19,7 +15,7 @@ describe("readme tests", function () {
       expect(Container.I.get("MyFactoryWithValue")).toBe("value");
 
       Container.I.register(
-        createFactoryMethod((params) => params?.args),
+        createFactoryMethod((params?: CreationParameters) => params?.args),
         { name: "MyFactoryWithArgs", args: "value" }
       );
       expect(Container.I.get("MyFactoryWithArgs")).toBe("value");
@@ -128,9 +124,8 @@ describe("readme tests", function () {
         async () => (value = "initialized")
       );
 
-      // console.log(value); // prints ""
-      // console.log(lazyInstance.get); // prints "initialized"
-      // console.log(value); // prints "initialized"
+      // console.log(await asyncLazyInstance.I); // prints "initialized"
+      // console.log(await asyncLazyInstance.getI()); // prints "initialized"
 
       expect(value).toBe("");
       expect(await asyncLazyInstance.I).toBe("initialized");
@@ -146,9 +141,8 @@ describe("readme tests", function () {
         { lock: new Mutex() }
       );
 
-      // console.log(value); // prints ""
-      // console.log(lazyInstance.get); // prints "initialized"
-      // console.log(value); // prints "initialized"
+      // console.log(await asyncLazyInstance.I); // prints "initialized"
+      // console.log(await asyncLazyInstance.getI()); // prints "initialized"
 
       expect(value).toBe("");
       expect(await asyncLazyInstance.I).toBe("initialized");

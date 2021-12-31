@@ -3,7 +3,7 @@ import {
   CreationParameters,
   FactoryFn,
   FactoryMethod,
-} from "./container";
+} from "./container-spec";
 
 export interface Factory<T = unknown, D extends Items = Items, A = unknown> {
   readonly name: string;
