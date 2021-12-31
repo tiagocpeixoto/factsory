@@ -232,7 +232,7 @@ yarn add factsory
 
 ## License
 
-Copyright (c) 2020 Tiago da Costa Peixoto <tiagocpeixoto@gmail.com>
+Copyright (c) 2022 Tiago da Costa Peixoto <tiagocpeixoto@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
