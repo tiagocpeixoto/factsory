@@ -5,7 +5,9 @@
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "files": [
-    "dist/src/**/*"
+    "LICENSE",
+    "CHANGELOG",
+    "dist"
   ],
   "author": {
     "name": "Tiago da Costa Peixoto",
@@ -37,7 +39,8 @@
     "test:clear": "jest --clearCache",
     "validate": "yarn test && yarn lint && yarn prettier:check",
     "build": "tsc --build",
-    "clean": "yarn build --clean"
+    "clean": "yarn build --clean",
+    "_postpublish": "git tag -as ${npm_package_version} -m \"Release version ${npm_package_version}\" && git push && git push --tags"
   },
   "dependencies": {
     "tslib": "~2.3.1"
