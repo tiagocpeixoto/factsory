@@ -1,3 +1,8 @@
+# next (TBA)
+
+* chore: improve project.json
+
+
 # 2.0.0 (31/12/2021)
 
 * BREAK: rename singleton property from "get" to "I"
