@@ -1,6 +1,6 @@
 # next (TBA)
 
-* chore: improve project.json
+* chore: improve package.json
 
 
 # 2.0.0 (31/12/2021)
