@@ -1,6 +1,9 @@
 # next (TBA)
 
 * chore: improve package.json
+* chore: upgrade dependencies
+* chore: migrate from faker to @faker-js/faker
+* chore: improve README
 
 
 # 2.0.0 (31/12/2021)

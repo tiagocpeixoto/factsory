@@ -1,5 +1,5 @@
+import faker from "@faker-js/faker";
 import { Mutex } from "async-mutex";
-import * as faker from "faker";
 import { AsyncLazyInstance, Lock } from "../async-lazy-instance";
 
 describe("async-lazy-instance tests", function () {

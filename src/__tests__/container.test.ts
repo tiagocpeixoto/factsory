@@ -1,7 +1,7 @@
+import faker from "@faker-js/faker";
 import chai from "chai";
 import chaiLike from "chai-like";
 import chaiThings from "chai-things";
-import faker from "faker";
 import { mock } from "jest-mock-extended";
 import { Container, ContainerItemNotFoundError } from "../container";
 import {
