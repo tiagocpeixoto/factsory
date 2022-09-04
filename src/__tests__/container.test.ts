@@ -1,4 +1,4 @@
-import faker from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import chai from "chai";
 import chaiLike from "chai-like";
 import chaiThings from "chai-things";

@@ -1,4 +1,4 @@
-import faker from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import { Mutex } from "async-mutex";
 import { AsyncLazyInstance, Lock } from "../async-lazy-instance";
 
