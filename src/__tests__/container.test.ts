@@ -178,6 +178,41 @@ describe("Container tests", function () {
         .instanceOf(ContainerItemNotFoundError);
       result.should.have.property(name).instanceOf(TestFactory);
     });
+
+    it("test clear", function () {
+      const itemNotFoundName = faker.lorem.word();
+      const name = faker.lorem.word();
+      Container.I.registerAll([{ creator: TestFactory, options: { name } }]);
+
+      const result = Container.I.getAll([itemNotFoundName, name], {
+        checkExists: false,
+      });
+      expect(result[itemNotFoundName]).toBeInstanceOf(
+        ContainerItemNotFoundError
+      );
+      expect(result[name]).toBeInstanceOf(TestFactory);
+
+      result.should.have
+        .property(itemNotFoundName)
+        .instanceOf(ContainerItemNotFoundError);
+      result.should.have.property(name).instanceOf(TestFactory);
+
+      Container.I.clear();
+      const emptyResult = Container.I.getAll([itemNotFoundName, name], {
+        checkExists: false,
+      });
+      expect(emptyResult[itemNotFoundName]).toBeInstanceOf(
+        ContainerItemNotFoundError
+      );
+      expect(emptyResult[name]).toBeInstanceOf(ContainerItemNotFoundError);
+
+      emptyResult.should.have
+        .property(itemNotFoundName)
+        .instanceOf(ContainerItemNotFoundError);
+      emptyResult.should.have
+        .property(name)
+        .instanceOf(ContainerItemNotFoundError);
+    });
   });
 
   describe("register item with params tests", function () {
@@ -419,6 +454,10 @@ describe("Container tests", function () {
   });
 
   describe("Container config tests", function () {
+    beforeAll(function () {
+      Container.I.clear();
+    });
+
     it("test default config", function () {
       expect(Container.I.get(faker.lorem.word())).toBeFalsy();
     });

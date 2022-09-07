@@ -88,4 +88,5 @@ export interface ContainerSpec {
     id: ItemId<T, D, A>,
     options?: ExistsConfig
   ): T | null;
+  clear(): void;
 }

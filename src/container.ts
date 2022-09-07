@@ -133,6 +133,12 @@ export class Container implements ContainerSpec {
     return null;
   }
 
+  clear(): void {
+    Object.getOwnPropertyNames(this.items).forEach((prop) => {
+      delete this.items[prop];
+    });
+  }
+
   #instantiate<T>(meta: ItemMeta<T>): T {
     if (meta.options?.singleton && meta.instance) {
       return meta.instance;

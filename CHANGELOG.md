@@ -1,5 +1,9 @@
 # next (TBA)
 
+
+# 2.1.0 (7/9/2022)
+
+* add clear() method do container spec
 * chore: improve package.json
 * chore: upgrade dependencies
 * chore: migrate from faker to @faker-js/faker
