@@ -1,6 +1,11 @@
 # next (TBA)
 
 
+# 3.0.0 (TBA)
+
+* add ESM support
+
+
 # 2.1.1 (7/9/2022)
 
 * remove Node v12 from GitHub tests
