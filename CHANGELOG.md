@@ -1,6 +1,11 @@
 # next (TBA)
 
 
+# 2.1.1 (7/9/2022)
+
+* remove Node v12 from GitHub tests
+
+
 # 2.1.0 (7/9/2022)
 
 * add clear() method do container spec
