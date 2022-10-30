@@ -1,6 +1,11 @@
 # next (TBA)
 
 
+# 3.0.1 (2022-10-30)
+
+* chore: fix GitHub Actions workflow
+
+
 # 3.0.0 (2022-10-30)
 
 * chore: add ESM support
