@@ -3,7 +3,8 @@
 
 # 3.0.0 (2022-10-30)
 
-* add ESM support
+* chore: add ESM support
+* chore: upgrade dependencies
 * chore: migrate to Yarn v3
 
 
