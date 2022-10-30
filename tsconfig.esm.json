@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": ".",
-    "outDir": "dist/esm",
+    "outDir": "dist/mjs",
     "module": "ES2020",
     "paths": {
       "@src/*": ["src/*"]

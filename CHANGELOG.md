@@ -4,6 +4,7 @@
 # 3.0.0 (TBA)
 
 * add ESM support
+* chore: migrate to Yarn v3
 
 
 # 2.1.1 (7/9/2022)
