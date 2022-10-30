@@ -1,18 +1,18 @@
 # next (TBA)
 
 
-# 3.0.0 (TBA)
+# 3.0.0 (2022-10-30)
 
 * add ESM support
 * chore: migrate to Yarn v3
 
 
-# 2.1.1 (7/9/2022)
+# 2.1.1 (2022-09-07)
 
 * remove Node v12 from GitHub tests
 
 
-# 2.1.0 (7/9/2022)
+# 2.1.0 (2022-09-07)
 
 * add clear() method do container spec
 * chore: improve package.json
@@ -21,7 +21,7 @@
 * chore: improve README
 
 
-# 2.0.0 (31/12/2021)
+# 2.0.0 (2021-12-31)
 
 * BREAK: rename singleton property from "get" to "I"
 * create singleton method "getI()"
