@@ -3,7 +3,7 @@
 * 
 
 
-# 3.1.0 (2022-10-30)
+# 3.1.0 (2022-12-29)
 
 * chore: upgrade dependencies
 * chore: upgrade yarn version
