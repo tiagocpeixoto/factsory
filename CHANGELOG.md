@@ -7,6 +7,7 @@
 
 * chore: upgrade dependencies
 * chore: upgrade yarn version
+* chore: improve GitHub actions workflow
 
 
 # 3.0.1 (2022-10-30)

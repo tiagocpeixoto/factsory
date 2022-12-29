@@ -41,7 +41,9 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        # run: echo "::set-output name=dir::$(yarn cache dir)" // yarn v1
+        # run: echo "::set-output name=dir::$(yarn config get cacheFolder)" // yarn v2+ -- this is now deprecated from GitHub
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Restore cache
         uses: actions/cache@v3
