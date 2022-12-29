@@ -1,5 +1,13 @@
 # next (TBA)
 
+* 
+
+
+# 3.1.0 (2022-10-30)
+
+* chore: upgrade dependencies
+* chore: upgrade yarn version
+
 
 # 3.0.1 (2022-10-30)
 
