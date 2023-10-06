@@ -15,7 +15,7 @@ export class LazyInstance<T> {
 
   constructor(
     lazyInit: InitFunction<T>,
-    { name, eagerInit = false }: InitOptions = {}
+    { name, eagerInit = false }: InitOptions = {},
   ) {
     this.name = `${name ?? "LazyInstance"}-${new Date().toISOString()}`;
     this.eagerInit = eagerInit;
@@ -31,7 +31,7 @@ export class LazyInstance<T> {
   }
 
   get instanceName(): string {
-    return this.name as string;
+    return this.name;
   }
 
   get I(): T {

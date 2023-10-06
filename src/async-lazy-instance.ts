@@ -19,7 +19,7 @@ export class AsyncLazyInstance<T> {
 
   constructor(
     asyncLazyInit: AsyncInitFunction<T>,
-    { name, eagerInit = false, lock }: AsyncInitOptions = {}
+    { name, eagerInit = false, lock }: AsyncInitOptions = {},
   ) {
     this.name = `${name ?? "AsyncLazyInstance"}-${new Date().toISOString()}`;
     this.eagerInit = eagerInit;
@@ -36,7 +36,7 @@ export class AsyncLazyInstance<T> {
   }
 
   get instanceName(): string {
-    return this.name as string;
+    return this.name;
   }
 
   get I(): Promise<T> {

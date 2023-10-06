@@ -1,7 +1,7 @@
 export interface Constructor<
   T = unknown,
   D extends Items = Items,
-  A = unknown
+  A = unknown,
 > {
   new (params?: CreationParameters<D, A>): T;
 }
@@ -28,13 +28,13 @@ export type CreationArguments<A = unknown> = Omit<
 export type Creator<
   T = unknown,
   D extends Items | never = Items,
-  A = unknown | never
+  A = unknown | never,
 > = Constructor<T, D, A> | FactoryMethod<T, D, A>;
 
 export interface FactoryMethod<
   T = unknown,
   D extends Items = Items,
-  A = unknown
+  A = unknown,
 > extends FactoryFn<T, D, A> {
   // (params?: CreationParameters<A>): T;
   readonly isFactoryMethod: true;
@@ -55,7 +55,7 @@ export type ItemId<T = unknown, D extends Items = Items, A = unknown> =
 export type ItemMeta<
   T = unknown,
   D extends Items = Items,
-  A = unknown
+  A = unknown,
 > = ItemRegister<T, D, A> & {
   instance?: T;
 };
@@ -80,13 +80,13 @@ export interface ContainerSpec {
   registerAll<T extends ItemsRegister>(items: T): void;
   register<T, D extends Items, A>(
     creator: Creator<T, D, A>,
-    options?: RegistrationOptions<unknown>
+    options?: RegistrationOptions<unknown>,
   ): string;
   unregister<T, D extends Items, A>(id: ItemId<T, D, A>): string;
   getAll(ids: ItemId<unknown, never, never>[], options?: ExistsConfig): Items;
   get<T, D extends Items, A>(
     id: ItemId<T, D, A>,
-    options?: ExistsConfig
+    options?: ExistsConfig,
   ): T | null;
   clear(): void;
 }

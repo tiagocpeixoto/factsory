@@ -12,7 +12,10 @@ import {
 import { LazyInstance } from "./lazy-instance";
 
 export class ContainerItemNotFoundError extends Error {
-  constructor(public readonly containerItemName: string, message?: string) {
+  constructor(
+    public readonly containerItemName: string,
+    message?: string,
+  ) {
     super(message);
     // see: www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
@@ -34,7 +37,7 @@ export class Container implements ContainerSpec {
     () => (Container.specImpl ??= new Container()),
     {
       name: "Container",
-    }
+    },
   );
 
   readonly items: {
@@ -75,7 +78,7 @@ export class Container implements ContainerSpec {
 
   register<T, D extends Items, A>(
     creator: Creator<T, D, A>,
-    options?: RegistrationOptions<unknown>
+    options?: RegistrationOptions<unknown>,
   ): string {
     const actualName = options?.name ?? creator.name;
     const actualOptions: RegistrationOptions<unknown> = {

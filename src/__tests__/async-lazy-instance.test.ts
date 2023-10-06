@@ -7,7 +7,7 @@ describe("async-lazy-instance tests", function () {
     let value = "";
 
     const asyncLazyInstance = new AsyncLazyInstance(
-      async () => (value = faker.lorem.word())
+      async () => (value = faker.lorem.word()),
     );
 
     expect(value).toBeFalsy();
@@ -24,7 +24,7 @@ describe("async-lazy-instance tests", function () {
       async () => (value = faker.lorem.word()),
       {
         eagerInit: true,
-      }
+      },
     );
 
     expect(value).toBeTruthy();
@@ -46,7 +46,7 @@ describe("async-lazy-instance tests", function () {
       async () => (value = faker.lorem.word()),
       {
         lock,
-      }
+      },
     );
 
     const getValue1 = await asyncLazyInstance.I;
@@ -72,7 +72,7 @@ describe("async-lazy-instance tests", function () {
       {
         eagerInit: true,
         lock,
-      }
+      },
     );
 
     const getValue1 = await asyncLazyInstance.I;
@@ -92,7 +92,7 @@ describe("async-lazy-instance tests", function () {
       async () => (value = faker.lorem.word()),
       {
         lock: new Mutex(),
-      }
+      },
     );
 
     const getValue1 = await asyncLazyInstance.I;
@@ -111,7 +111,7 @@ describe("async-lazy-instance tests", function () {
       {
         eagerInit: true,
         lock: new Mutex(),
-      }
+      },
     );
 
     const getValue1 = await asyncLazyInstance.I;
@@ -130,7 +130,7 @@ describe("async-lazy-instance tests", function () {
       async () => (value = faker.lorem.word()),
       {
         name,
-      }
+      },
     );
     expect(value).toBeFalsy();
 

@@ -17,7 +17,7 @@ export interface SimpleFactory<T> extends Factory<T, never, never> {
 export abstract class DefaultFactory<
   T = unknown,
   D extends Items = Items,
-  A = unknown
+  A = unknown,
 > implements Factory<T, D, A>
 {
   readonly name = this.constructor.name;
@@ -35,14 +35,14 @@ export abstract class DefaultFactory<
       this.args = args;
       return this.instantiate();
     },
-    { isFactoryMethod: <const>true }
+    { isFactoryMethod: <const>true },
   );
 
   abstract instantiate(): T;
 }
 
 export function createFactoryMethod<T, D extends Items, A>(
-  creator: FactoryFn<T, D, A>
+  creator: FactoryFn<T, D, A>,
   // options?: {
   //   name?: string;
   // }

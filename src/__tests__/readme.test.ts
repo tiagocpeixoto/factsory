@@ -10,13 +10,13 @@ describe("readme tests", function () {
     it("test register creation functions", function () {
       Container.I.register(
         createFactoryMethod(() => "value"),
-        { name: "MyFactoryWithValue" }
+        { name: "MyFactoryWithValue" },
       );
       expect(Container.I.get("MyFactoryWithValue")).toBe("value");
 
       Container.I.register(
         createFactoryMethod((params?: CreationParameters) => params?.args),
-        { name: "MyFactoryWithArgs", args: "value" }
+        { name: "MyFactoryWithArgs", args: "value" },
       );
       expect(Container.I.get("MyFactoryWithArgs")).toBe("value");
     });
@@ -37,7 +37,7 @@ describe("readme tests", function () {
       constructor(
         params?: CreationDependencies<{
           MyFactory: MyFactory;
-        }>
+        }>,
       ) {
         super();
         if (params?.dependencies) {
@@ -73,7 +73,7 @@ describe("readme tests", function () {
       expect(Container.I.get(MyFactory)).toBeTruthy();
       expect(Container.I.get(MyFactoryWithDependencies)).toBeTruthy();
       expect(Container.I.get(MyFactoryWithDependencies)?.dep).toBe(
-        Container.I.get(MyFactory)
+        Container.I.get(MyFactory),
       );
     });
   });
@@ -121,7 +121,7 @@ describe("readme tests", function () {
       let value = "";
 
       const asyncLazyInstance = new AsyncLazyInstance(
-        async () => (value = "initialized")
+        async () => (value = "initialized"),
       );
 
       // console.log(await asyncLazyInstance.I); // prints "initialized"
@@ -138,7 +138,7 @@ describe("readme tests", function () {
 
       const asyncLazyInstance = new AsyncLazyInstance(
         async () => (value = "initialized"),
-        { lock: new Mutex() }
+        { lock: new Mutex() },
       );
 
       // console.log(await asyncLazyInstance.I); // prints "initialized"
