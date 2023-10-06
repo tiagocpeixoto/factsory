@@ -1,6 +1,6 @@
 # next (TBA)
 
-* 
+* chore: improve .npmignore
 
 
 # 3.2.1 (2023-10-06)
