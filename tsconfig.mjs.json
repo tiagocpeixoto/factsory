@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist/mjs",
+    "module": "ES2022",
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    // see jest config
+    "src/**/*.test.*",
+    "src/**/*.spec.*"
+  ]
+}

@@ -6,8 +6,8 @@
     "outDir": "dist",
 
     /* Basic Options */
-    "target": "es2019",
-    "lib": ["es2019"],
+    "target": "es2022",
+    "lib": ["es2022"],
     "removeComments": true,
 
     /* Module Options */
@@ -41,7 +41,7 @@
     //   "@root/*": ["src/*"]
     // }
   },
-  /* child packages configuration must have these attributes */
+  /* child packages configuration may have these attributes */
   "include": [
     "src/**/*"
   ],

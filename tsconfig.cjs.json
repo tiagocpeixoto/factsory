@@ -2,8 +2,8 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": ".",
-    "outDir": "dist/out",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
     "paths": {
       "@src/*": [
         "src/*"
@@ -11,7 +11,11 @@
     }
   },
   "include": [
-    "src/**/*",
-    "*.ts"
+    "src/**/*"
+  ],
+  "exclude": [
+    // see jest config
+    "src/**/*.test.*",
+    "src/**/*.spec.*"
   ]
 }

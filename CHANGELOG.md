@@ -3,6 +3,14 @@
 * 
 
 
+# 3.2.0 (TBA)
+
+* chore: upgrade dependencies
+* chore: improve build config
+* chore: apply updated lint config
+* chore: upgrade yarn version
+
+
 # 3.1.0 (2022-12-29)
 
 * chore: upgrade dependencies
