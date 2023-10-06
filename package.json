@@ -1,7 +1,7 @@
 {
   "name": "factsory",
   "description": "A kind of factory and DI patterns library targeted to Typescript (w/o decorators)",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "main": "./dist/cjs/index.js",
   "types": "./dist/cjs/index.d.ts",
   "module": "./dist/mjs/index.js",
@@ -19,7 +19,8 @@
     "LICENSE",
     "CHANGELOG.md",
     "README.md",
-    "dist"
+    "dist/mjs",
+    "dist/cjs"
   ],
   "author": {
     "name": "Tiago da Costa Peixoto",

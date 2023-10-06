@@ -3,7 +3,12 @@
 * 
 
 
-# 3.2.0 (TBA)
+# 3.2.1 (2023-10-06)
+
+* fix: npm publish
+
+
+# 3.2.0 (2023-10-06)
 
 * chore: upgrade dependencies
 * chore: improve build config
