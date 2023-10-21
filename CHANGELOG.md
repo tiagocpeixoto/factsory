@@ -1,6 +1,13 @@
 # next (TBA)
 
+*
+
+
+# 3.3.0 (2023-10-21)
+
+* feat: add support to symbol
 * chore: improve .npmignore
+* chore: upgrade dependencies
 
 
 # 3.2.1 (2023-10-06)
