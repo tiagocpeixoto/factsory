@@ -1,9 +1,9 @@
-import { AsyncLazyInstance } from "@src/async-lazy-instance";
-import { CreationDependencies, CreationParameters } from "@src/container-spec";
-import { LazyInstance } from "@src/lazy-instance";
 import { Mutex } from "async-mutex";
-import { Container } from "../container";
+import { AsyncLazyInstance } from "../async-lazy-instance";
+import { CreationDependencies, CreationParameters } from "../container-spec";
 import { createFactoryMethod, DefaultFactory, Factory } from "../factory";
+import { LazyInstance } from "../lazy-instance";
+import { Container } from "../container";
 
 describe("readme tests", function () {
   describe("container registration tests", function () {

@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import {
   createAsyncLazyInstanceFactoryMethod,
   createFactoryMethod,
@@ -5,7 +6,6 @@ import {
   DefaultFactory,
   Factory,
 } from "..";
-import { faker } from "@faker-js/faker";
 
 describe("factory tests", function () {
   describe("extending/implementing tests", function () {

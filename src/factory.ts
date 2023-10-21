@@ -1,3 +1,4 @@
+import { AsyncInitOptions, AsyncLazyInstance } from "./async-lazy-instance";
 import {
   Items,
   CreationParameters,
@@ -5,7 +6,6 @@ import {
   FactoryMethod,
 } from "./container-spec";
 import { InitOptions, LazyInstance } from "./lazy-instance";
-import { AsyncInitOptions, AsyncLazyInstance } from "./async-lazy-instance";
 
 export interface Factory<T = unknown, D extends Items = Items, A = unknown> {
   readonly id: string;
