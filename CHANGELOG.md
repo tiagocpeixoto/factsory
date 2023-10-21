@@ -5,6 +5,7 @@
 
 # 4.1.0 (2023-10-21)
 
+* feat: add create async/lazy instance factory methods
 * BREAK: refactor from item name to item id
 
 

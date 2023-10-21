@@ -4,6 +4,8 @@ import {
   FactoryFn,
   FactoryMethod,
 } from "./container-spec";
+import { InitOptions, LazyInstance } from "./lazy-instance";
+import { AsyncInitOptions, AsyncLazyInstance } from "./async-lazy-instance";
 
 export interface Factory<T = unknown, D extends Items = Items, A = unknown> {
   readonly id: string;
@@ -49,6 +51,20 @@ export function createFactoryMethod<T, D extends Items, A>(
 ): FactoryMethod<T, D, A> {
   return Object.assign(creator, {
     // id: options?.id ?? creator.id,
-    isFactoryMethod: <const>true,
+    isFactoryMethod: true as const,
   });
+}
+
+export function createLazyInstanceFactoryMethod<T, D extends Items, A>(
+  creator: FactoryFn<T, D, A>,
+  options?: InitOptions,
+): FactoryMethod<LazyInstance<T>, D, A> {
+  return createFactoryMethod(() => new LazyInstance(creator, options));
+}
+
+export function createAsyncLazyInstanceFactoryMethod<T, D extends Items, A>(
+  creator: FactoryFn<Promise<T>, D, A>,
+  options?: AsyncInitOptions,
+): FactoryMethod<AsyncLazyInstance<T>, D, A> {
+  return createFactoryMethod(() => new AsyncLazyInstance(creator, options));
 }
