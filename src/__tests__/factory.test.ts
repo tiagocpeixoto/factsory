@@ -38,7 +38,7 @@ describe("factory tests", function () {
         return lazyValue;
       })();
 
-      expect(lazyValue).toEqual("");
+      expect(lazyValue).toBe("");
       // actually created
       expect(lazyInstance.I).toEqual(value);
       expect(lazyValue).toEqual(value);
@@ -54,7 +54,7 @@ describe("factory tests", function () {
         },
       )();
 
-      expect(lazyValue).toEqual("");
+      expect(lazyValue).toBe("");
       // actually created
       expect(await asyncLazyInstance.I).toEqual(value);
       expect(lazyValue).toEqual(value);
