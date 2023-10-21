@@ -3,6 +3,12 @@
 *
 
 
+# 3.3.1 (2023-10-21)
+
+* fix: add support to symbol
+* chore: update validate GitHub actions workflow
+
+
 # 3.3.0 (2023-10-21)
 
 * feat: add support to symbol

@@ -71,7 +71,7 @@ export interface ItemRegister<T, D extends Items, A> {
 export type ItemsRegister = ItemRegister<unknown, never, never>[];
 
 export interface RegistrationOptions<A> {
-  name?: string;
+  name?: SimpleItemId;
   singleton?: boolean;
   dependencies?: ItemId[];
   args?: A;

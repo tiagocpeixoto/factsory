@@ -148,6 +148,34 @@ describe("Container tests", function () {
       );
     });
 
+    it("test register symbol named item", function () {
+      const name = Symbol.for("name");
+
+      expect(
+        Container.I.register(
+          createFactoryMethod(() => value),
+          { name },
+        ),
+      ).toEqual(name);
+      expect(() =>
+        Container.I.register(
+          createFactoryMethod(() => value),
+          { name },
+        ),
+      ).toThrow("already registered");
+
+      expect(Container.I.get(name)).toBe(value);
+
+      expect(Container.I.unregister(name)).toEqual(name);
+      expect(() => Container.I.unregister(name)).toThrow("not registered");
+
+      expect(Container.I.get(name)).toBeFalsy();
+
+      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
+        "not registered",
+      );
+    });
+
     it("test register all", function () {
       const name = faker.lorem.word();
       Container.I.registerAll([

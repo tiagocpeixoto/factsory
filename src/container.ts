@@ -69,14 +69,14 @@ export class Container implements ContainerSpec {
   register<T, D extends Items, A>(
     creator: Creator<T, D, A>,
     options?: RegistrationOptions<unknown>,
-  ): string {
+  ): SimpleItemId {
     const actualName = options?.name ?? creator.name;
     const actualOptions: RegistrationOptions<unknown> = {
       ...defaultItemRegistrationOptions,
       ...options,
     };
     if (this.items[actualName]) {
-      throw new Error(`Item '${actualName}' already registered`);
+      throw new Error(`Item '${actualName?.toString()}' already registered`);
     }
 
     this.items[actualName] = {
