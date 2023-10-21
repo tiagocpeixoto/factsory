@@ -1,14 +1,6 @@
-export interface FactoryConstructor<
-  T = unknown,
-  D extends Items = Items,
-  A = unknown,
-> {
-  new (params?: CreationParameters<D, A>): T;
-}
+export type SimpleItemId = string | symbol;
 
-export interface FactoryFn<T = unknown, D extends Items = Items, A = unknown> {
-  (params?: CreationParameters<D, A>): T;
-}
+export type Items = Record<SimpleItemId, unknown>;
 
 export interface CreationParameters<D extends Items = Items, A = unknown> {
   readonly dependencies?: D;
@@ -25,6 +17,18 @@ export type CreationArguments<A = unknown> = Omit<
   "dependencies"
 >;
 
+export interface FactoryConstructor<
+  T = unknown,
+  D extends Items = Items,
+  A = unknown,
+> {
+  new (params?: CreationParameters<D, A>): T;
+}
+
+export interface FactoryFn<T = unknown, D extends Items = Items, A = unknown> {
+  (params?: CreationParameters<D, A>): T;
+}
+
 export interface FactoryMethod<
   T = unknown,
   D extends Items = Items,
@@ -40,27 +44,9 @@ export type Creator<
   A = unknown | never,
 > = FactoryConstructor<T, D, A> | FactoryMethod<T, D, A>;
 
-export type Items = Record<SimpleItemId, unknown>;
-
-export type ContainerConfig = ExistsConfig;
-
-export interface ExistsConfig {
-  checkExists?: boolean;
-}
-
-export type SimpleItemId = string | symbol;
-
 export type ItemId<T = unknown, D extends Items = Items, A = unknown> =
   | SimpleItemId
   | Creator<T, D, A>;
-
-export type ItemMeta<
-  T = unknown,
-  D extends Items = Items,
-  A = unknown,
-> = ItemRegister<T, D, A> & {
-  instance?: T;
-};
 
 export interface ItemRegister<T, D extends Items, A> {
   readonly creator: Creator<T, D, A>;
@@ -70,12 +56,26 @@ export interface ItemRegister<T, D extends Items, A> {
 
 export type ItemsRegister = ItemRegister<unknown, never, never>[];
 
+export type ItemMeta<
+  T = unknown,
+  D extends Items = Items,
+  A = unknown,
+> = ItemRegister<T, D, A> & {
+  instance?: T;
+};
+
 export interface RegistrationOptions<A> {
   id?: SimpleItemId;
   singleton?: boolean;
   dependencies?: ItemId[];
   args?: A;
 }
+
+export interface ExistsConfig {
+  checkExists?: boolean;
+}
+
+export type ContainerConfig = ExistsConfig;
 
 export interface ContainerSpec {
   setConfig(config: ContainerConfig): void;
