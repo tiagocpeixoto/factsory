@@ -123,13 +123,13 @@ describe("async-lazy-instance tests", function () {
   });
 
   it("test named create and get", async function () {
-    const name = faker.lorem.word();
+    const id = faker.lorem.word();
     let value = "";
 
     const asyncLazyInstance = new AsyncLazyInstance(
       async () => (value = faker.lorem.word()),
       {
-        name,
+        id,
       },
     );
     expect(value).toBeFalsy();
@@ -139,7 +139,7 @@ describe("async-lazy-instance tests", function () {
     const getValue2 = await asyncLazyInstance.getI();
     expect(value).toBe(getValue2);
 
-    expect(asyncLazyInstance.instanceName).toMatch(name);
+    expect(asyncLazyInstance.instanceId).toMatch(id);
   });
 
   it("test reset", async function () {

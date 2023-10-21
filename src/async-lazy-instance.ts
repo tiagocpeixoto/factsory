@@ -11,7 +11,7 @@ export interface Lock {
 }
 
 export class AsyncLazyInstance<T> {
-  readonly name: string;
+  readonly id: string;
   readonly eagerInit: boolean;
   #instance?: T;
   readonly #asyncLazyInit: AsyncInitFunction<T>;
@@ -19,9 +19,9 @@ export class AsyncLazyInstance<T> {
 
   constructor(
     asyncLazyInit: AsyncInitFunction<T>,
-    { name, eagerInit = false, lock }: AsyncInitOptions = {},
+    { id, eagerInit = false, lock }: AsyncInitOptions = {},
   ) {
-    this.name = `${name ?? "AsyncLazyInstance"}-${new Date().toISOString()}`;
+    this.id = `${id ?? "AsyncLazyInstance"}-${new Date().toISOString()}`;
     this.eagerInit = eagerInit;
     this.#asyncLazyInit = asyncLazyInit;
     this.#lock = lock;
@@ -35,8 +35,8 @@ export class AsyncLazyInstance<T> {
     this.#instance = await this.#asyncLazyInit();
   }
 
-  get instanceName(): string {
-    return this.name;
+  get instanceId(): string {
+    return this.id;
   }
 
   get I(): Promise<T> {

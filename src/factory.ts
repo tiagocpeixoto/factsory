@@ -6,7 +6,7 @@ import {
 } from "./container-spec";
 
 export interface Factory<T = unknown, D extends Items = Items, A = unknown> {
-  readonly name: string;
+  readonly id: string;
   create: FactoryMethod<T, D, A>;
 }
 
@@ -20,7 +20,7 @@ export abstract class DefaultFactory<
   A = unknown,
 > implements Factory<T, D, A>
 {
-  readonly name = this.constructor.name;
+  readonly id = this.constructor.name;
   protected dependencies?: Items;
   protected args?: A;
 
@@ -44,11 +44,11 @@ export abstract class DefaultFactory<
 export function createFactoryMethod<T, D extends Items, A>(
   creator: FactoryFn<T, D, A>,
   // options?: {
-  //   name?: string;
+  //   id?: string;
   // }
 ): FactoryMethod<T, D, A> {
   return Object.assign(creator, {
-    // name: options?.name ?? creator.name,
+    // id: options?.id ?? creator.id,
     isFactoryMethod: <const>true,
   });
 }

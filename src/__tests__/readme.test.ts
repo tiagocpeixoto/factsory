@@ -10,13 +10,13 @@ describe("readme tests", function () {
     it("test register creation functions", function () {
       Container.I.register(
         createFactoryMethod(() => "value"),
-        { name: "MyFactoryWithValue" },
+        { id: "MyFactoryWithValue" },
       );
       expect(Container.I.get("MyFactoryWithValue")).toBe("value");
 
       Container.I.register(
         createFactoryMethod((params?: CreationParameters) => params?.args),
-        { name: "MyFactoryWithArgs", args: "value" },
+        { id: "MyFactoryWithArgs", args: "value" },
       );
       expect(Container.I.get("MyFactoryWithArgs")).toBe("value");
     });
@@ -91,7 +91,7 @@ describe("readme tests", function () {
 
     it("test implementing Factory", function () {
       class MyFactory implements Factory<string> {
-        readonly name = this.constructor.name;
+        readonly id = this.constructor.name;
         create = createFactoryMethod(() => "value");
       }
 

@@ -3,21 +3,21 @@ export interface InitFunction<T> {
 }
 
 export interface InitOptions {
-  name?: string;
+  id?: string;
   eagerInit?: boolean;
 }
 
 export class LazyInstance<T> {
-  readonly name: string;
+  readonly id: string;
   readonly eagerInit: boolean;
   #instance?: T;
   readonly #lazyInit: InitFunction<T>;
 
   constructor(
     lazyInit: InitFunction<T>,
-    { name, eagerInit = false }: InitOptions = {},
+    { id, eagerInit = false }: InitOptions = {},
   ) {
-    this.name = `${name ?? "LazyInstance"}-${new Date().toISOString()}`;
+    this.id = `${id ?? "LazyInstance"}-${new Date().toISOString()}`;
     this.eagerInit = eagerInit;
     this.#lazyInit = lazyInit;
 
@@ -30,8 +30,8 @@ export class LazyInstance<T> {
     this.#instance = this.#lazyInit();
   }
 
-  get instanceName(): string {
-    return this.name;
+  get instanceId(): string {
+    return this.id;
   }
 
   get I(): T {
@@ -40,7 +40,7 @@ export class LazyInstance<T> {
 
   getI(): T {
     // if (this.instance == null) {
-    //     console.debug(`Lazying init ${this.name}...`)
+    //     console.debug(`Lazying init ${this.id}...`)
     // }
 
     return this.#instance ?? (this.#instance = this.#lazyInit());

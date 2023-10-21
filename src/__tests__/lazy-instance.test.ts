@@ -29,11 +29,11 @@ describe("lazy-instance tests", function () {
   });
 
   it("test named create and get", function () {
-    const name = faker.lorem.word();
+    const id = faker.lorem.word();
     let value = "";
 
     const lazyInstance = new LazyInstance(() => (value = faker.lorem.word()), {
-      name,
+      id,
     });
     expect(value).toBeFalsy();
 
@@ -42,7 +42,7 @@ describe("lazy-instance tests", function () {
     const getValue2 = lazyInstance.I;
     expect(value).toBe(getValue2);
 
-    expect(lazyInstance.instanceName).toMatch(name);
+    expect(lazyInstance.instanceId).toMatch(id);
   });
 
   it("test reset", function () {

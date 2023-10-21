@@ -89,24 +89,24 @@ yarn add factsory
 1. registering a class (e.g. a factory class - see [Factory definition](#factory-definition) section):
 
    ``` ts
-   // name = "MyFactory"
+   // id = "MyFactory"
    Container.I.register(MyFactory);
    
    // or
-   Container.I.register(MyFactory, { name: "MyFactoryCustomName" });
+   Container.I.register(MyFactory, { id: "MyFactoryCustomId" });
    ```
 
 1. registering a creation function (factory method) using the ```createFactoryMethod```:
 
    ``` ts
-   // name will be set to ""
+   // id will be set to ""
    Container.I.register(createFactoryMethod(() => "value"));
    
    // or
-   Container.I.register(createFactoryMethod(() => "value"), { name: "MyFactoryWithValue" });
+   Container.I.register(createFactoryMethod(() => "value"), { id: "MyFactoryWithValue" });
    
    // or
-   Container.I.register(createFactoryMethod((params?: CreationParameters) => params?.args), { name: "MyFactoryWithArgs", args: "value" });
+   Container.I.register(createFactoryMethod((params?: CreationParameters) => params?.args), { id: "MyFactoryWithArgs", args: "value" });
    ```
    
 - It's also possible to define dependencies, which will be injected during the object creation:

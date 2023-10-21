@@ -14,7 +14,7 @@ describe("factory tests", function () {
 
     it("test implementing Factory", function () {
       class MyFactory implements Factory {
-        readonly name = this.constructor.name;
+        readonly id = this.constructor.name;
         create = createFactoryMethod(() => "value");
       }
 

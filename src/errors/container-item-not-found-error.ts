@@ -1,6 +1,6 @@
 export class ContainerItemNotFoundError extends Error {
   constructor(
-    public readonly containerItemName: string,
+    public readonly containerItemId: string,
     message?: string,
   ) {
     super(message);

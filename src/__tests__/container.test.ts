@@ -75,9 +75,9 @@ describe("Container tests", function () {
 
   describe("container error tests", function () {
     it("test item not found", function () {
-      const name = faker.lorem.word();
-      const error = new ContainerItemNotFoundError(name);
-      expect(error.containerItemName).toEqual(name);
+      const id = faker.lorem.word();
+      const error = new ContainerItemNotFoundError(id);
+      expect(error.containerItemId).toEqual(id);
     });
   });
 
@@ -85,21 +85,21 @@ describe("Container tests", function () {
     const value = faker.lorem.word();
     class TestFactory implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
-      create = createFactoryMethod(() => name);
+      readonly id = this.constructor.name;
+      create = createFactoryMethod(() => id);
     }
-    const name = TestFactory.name;
+    const id = TestFactory.name;
 
     it("test register item", function () {
-      expect(Container.I.register(TestFactory)).toEqual(name);
+      expect(Container.I.register(TestFactory)).toEqual(id);
 
       expect(() => Container.I.register(TestFactory)).toThrow(
         "already registered",
       );
 
-      expect(Container.I.get(TestFactory)?.name).toMatch(name);
+      expect(Container.I.get(TestFactory)?.id).toMatch(id);
 
-      expect(Container.I.unregister(TestFactory)).toEqual(name);
+      expect(Container.I.unregister(TestFactory)).toEqual(id);
       expect(() => Container.I.unregister(TestFactory)).toThrow(
         "not registered",
       );
@@ -111,7 +111,7 @@ describe("Container tests", function () {
       );
     });
 
-    it("test register empty name item", function () {
+    it("test register without item id", function () {
       const anonymousRegister = Container.I.register(
         createFactoryMethod(() => value),
       );
@@ -122,124 +122,120 @@ describe("Container tests", function () {
       ).toThrow("already registered");
     });
 
-    it("test register named item", function () {
+    it("test register with item id", function () {
       expect(
         Container.I.register(
           createFactoryMethod(() => value),
-          { name },
+          { id },
         ),
-      ).toEqual(name);
+      ).toEqual(id);
       expect(() =>
         Container.I.register(
           createFactoryMethod(() => value),
-          { name },
+          { id },
         ),
       ).toThrow("already registered");
 
-      expect(Container.I.get(name)).toBe(value);
+      expect(Container.I.get(id)).toBe(value);
 
-      expect(Container.I.unregister(name)).toEqual(name);
-      expect(() => Container.I.unregister(name)).toThrow("not registered");
+      expect(Container.I.unregister(id)).toEqual(id);
+      expect(() => Container.I.unregister(id)).toThrow("not registered");
 
-      expect(Container.I.get(name)).toBeFalsy();
+      expect(Container.I.get(id)).toBeFalsy();
 
-      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
+      expect(() => Container.I.get(id, { checkExists: true })).toThrow(
         "not registered",
       );
     });
 
-    it("test register symbol named item", function () {
-      const name = Symbol.for("name");
+    it("test register with symbol item id", function () {
+      const id = Symbol.for("id");
 
       expect(
         Container.I.register(
           createFactoryMethod(() => value),
-          { name },
+          { id },
         ),
-      ).toEqual(name);
+      ).toEqual(id);
       expect(() =>
         Container.I.register(
           createFactoryMethod(() => value),
-          { name },
+          { id },
         ),
       ).toThrow("already registered");
 
-      expect(Container.I.get(name)).toBe(value);
+      expect(Container.I.get(id)).toBe(value);
 
-      expect(Container.I.unregister(name)).toEqual(name);
-      expect(() => Container.I.unregister(name)).toThrow("not registered");
+      expect(Container.I.unregister(id)).toEqual(id);
+      expect(() => Container.I.unregister(id)).toThrow("not registered");
 
-      expect(Container.I.get(name)).toBeFalsy();
+      expect(Container.I.get(id)).toBeFalsy();
 
-      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
+      expect(() => Container.I.get(id, { checkExists: true })).toThrow(
         "not registered",
       );
     });
 
     it("test register all", function () {
-      const name = faker.lorem.word();
+      const id = faker.lorem.word();
       Container.I.registerAll([
         { creator: TestFactory },
-        { creator: createFactoryMethod(() => value), options: { name } },
+        { creator: createFactoryMethod(() => value), options: { id } },
       ]);
       expect(Container.I.get(TestFactory)).toBeTruthy();
-      expect(Container.I.get(name)).toBeTruthy();
+      expect(Container.I.get(id)).toBeTruthy();
       expect(
         Container.I.get(faker.lorem.word(), { checkExists: false }),
       ).toBeFalsy();
     });
 
-    it("test get named all", function () {
-      const itemNotFoundName = faker.lorem.word();
-      const name = faker.lorem.word();
-      Container.I.registerAll([{ creator: TestFactory, options: { name } }]);
+    it("test get all", function () {
+      const itemNotFoundId = faker.lorem.word();
+      const id = faker.lorem.word();
+      Container.I.registerAll([{ creator: TestFactory, options: { id } }]);
 
-      const result = Container.I.getAll([itemNotFoundName, name], {
+      const result = Container.I.getAll([itemNotFoundId, id], {
         checkExists: false,
       });
-      expect(result[itemNotFoundName]).toBeInstanceOf(
-        ContainerItemNotFoundError,
-      );
-      expect(result[name]).toBeInstanceOf(TestFactory);
+      expect(result[itemNotFoundId]).toBeInstanceOf(ContainerItemNotFoundError);
+      expect(result[id]).toBeInstanceOf(TestFactory);
 
       result.should.have
-        .property(itemNotFoundName)
+        .property(itemNotFoundId)
         .instanceOf(ContainerItemNotFoundError);
-      result.should.have.property(name).instanceOf(TestFactory);
+      result.should.have.property(id).instanceOf(TestFactory);
     });
 
     it("test clear", function () {
-      const itemNotFoundName = faker.lorem.word();
-      const name = faker.lorem.word();
-      Container.I.registerAll([{ creator: TestFactory, options: { name } }]);
+      const itemNotFoundId = faker.lorem.word();
+      const id = faker.lorem.word();
+      Container.I.registerAll([{ creator: TestFactory, options: { id } }]);
 
-      const result = Container.I.getAll([itemNotFoundName, name], {
+      const result = Container.I.getAll([itemNotFoundId, id], {
         checkExists: false,
       });
-      expect(result[itemNotFoundName]).toBeInstanceOf(
-        ContainerItemNotFoundError,
-      );
-      expect(result[name]).toBeInstanceOf(TestFactory);
+      expect(result[itemNotFoundId]).toBeInstanceOf(ContainerItemNotFoundError);
+      expect(result[id]).toBeInstanceOf(TestFactory);
 
       result.should.have
-        .property(itemNotFoundName)
+        .property(itemNotFoundId)
         .instanceOf(ContainerItemNotFoundError);
-      result.should.have.property(name).instanceOf(TestFactory);
+      result.should.have.property(id).instanceOf(TestFactory);
 
       Container.I.clear();
-      const emptyResult = Container.I.getAll([itemNotFoundName, name], {
+      const emptyResult = Container.I.getAll([itemNotFoundId, id], {
         checkExists: false,
       });
-      expect(emptyResult[itemNotFoundName]).toBeInstanceOf(
+      expect(emptyResult[itemNotFoundId]).toBeInstanceOf(
         ContainerItemNotFoundError,
       );
-      expect(emptyResult[name]).toBeInstanceOf(ContainerItemNotFoundError);
+      expect(emptyResult[id]).toBeInstanceOf(ContainerItemNotFoundError);
 
       emptyResult.should.have
-        .property(itemNotFoundName)
+        .property(itemNotFoundId)
         .instanceOf(ContainerItemNotFoundError);
       emptyResult.should.have
-        .property(name)
+        .property(id)
         .instanceOf(ContainerItemNotFoundError);
     });
   });
@@ -247,7 +243,7 @@ describe("Container tests", function () {
   describe("register item with params tests", function () {
     class TestParamsFactory implements SimpleFactory<string | undefined> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       readonly #value?: string;
 
       constructor(params?: CreationArguments<string | undefined>) {
@@ -256,12 +252,12 @@ describe("Container tests", function () {
 
       create = createFactoryMethod(() => this.#value);
     }
-    const name = TestParamsFactory.name;
+    const id = TestParamsFactory.name;
     const param = faker.lorem.word();
 
     it("test register item", function () {
       expect(Container.I.register(TestParamsFactory, { args: param })).toEqual(
-        name,
+        id,
       );
       expect(() => Container.I.register(TestParamsFactory)).toThrow(
         "already registered",
@@ -269,7 +265,7 @@ describe("Container tests", function () {
 
       expect(Container.I.get(TestParamsFactory)?.create()).toMatch(param);
 
-      expect(Container.I.unregister(TestParamsFactory)).toEqual(name);
+      expect(Container.I.unregister(TestParamsFactory)).toEqual(id);
       expect(() => Container.I.unregister(TestParamsFactory)).toThrow(
         "not registered",
       );
@@ -281,61 +277,61 @@ describe("Container tests", function () {
       ).toThrow("not registered");
     });
 
-    it("test register named item", function () {
+    it("test register with item id", function () {
       expect(
         Container.I.register(
           createFactoryMethod(
             (params?: CreationArguments<string>) => params?.args + "!",
           ),
-          { name, args: param },
+          { id, args: param },
         ),
-      ).toEqual(name);
+      ).toEqual(id);
       expect(() =>
         Container.I.register(
           createFactoryMethod(() => faker.lorem.word()),
-          { name },
+          { id },
         ),
       ).toThrow("already registered");
 
-      expect(Container.I.get(name)).toMatch(param + "!");
+      expect(Container.I.get(id)).toMatch(param + "!");
 
-      expect(Container.I.unregister(name)).toEqual(name);
-      expect(() => Container.I.unregister(name)).toThrow("not registered");
+      expect(Container.I.unregister(id)).toEqual(id);
+      expect(() => Container.I.unregister(id)).toThrow("not registered");
 
-      expect(Container.I.get(name)).toBeFalsy();
+      expect(Container.I.get(id)).toBeFalsy();
 
-      expect(() => Container.I.get(name, { checkExists: true })).toThrow(
+      expect(() => Container.I.get(id, { checkExists: true })).toThrow(
         "not registered",
       );
     });
 
     it("test register all", function () {
-      const name = faker.lorem.word();
+      const id = faker.lorem.word();
       Container.I.registerAll([
         { creator: TestParamsFactory, options: { args: param } },
         {
           creator: createFactoryMethod(
             (params?: CreationArguments<string>) => params?.args + "!",
           ),
-          options: { name, args: param },
+          options: { id, args: param },
         },
       ]);
 
-      const result = Container.I.getAll([TestParamsFactory, name]);
+      const result = Container.I.getAll([TestParamsFactory, id]);
       expect(
         (result[TestParamsFactory.name] as TestParamsFactory)?.create(),
       ).toBe(param);
-      expect(result[name]).toMatch(param + "!");
+      expect(result[id]).toMatch(param + "!");
 
       expect(Container.I.get(TestParamsFactory)?.create()).toBe(param);
-      expect(Container.I.get(name)).toMatch(param + "!");
+      expect(Container.I.get(id)).toMatch(param + "!");
     });
   });
 
   describe("Container singleton tests", function () {
     class SingletonFactory implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       readonly #value: string;
 
       constructor() {
@@ -373,7 +369,7 @@ describe("Container tests", function () {
 
     class FactoryCreator implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       readonly value: string;
 
       constructor() {
@@ -401,12 +397,12 @@ describe("Container tests", function () {
       Container.I.register(ConstructorCreator, {
         args: constructorValue,
       });
-      Container.I.register(factoryMethod, { name: "factoryMethod" });
+      Container.I.register(factoryMethod, { id: "factoryMethod" });
       Container.I.register(nullValueFactoryMethod, {
-        name: "nullValueFactoryMethod",
+        id: "nullValueFactoryMethod",
       });
       Container.I.register(failedFactoryMethod, {
-        name: "failedFactoryMethod",
+        id: "failedFactoryMethod",
       });
     });
 
@@ -452,7 +448,7 @@ describe("Container tests", function () {
   describe("Container non singleton tests", function () {
     class NonSingletonFactory implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       readonly #value: string;
 
       constructor() {
@@ -510,13 +506,13 @@ describe("Container tests", function () {
 
     class MyFactoryDependency implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       create = createFactoryMethod((): string => myFactoryDependencyValue);
     }
 
     class MyFactoryDependant implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
+      readonly id = this.constructor.name;
       protected readonly myFactoryDependency: MyFactoryDependency;
 
       constructor(
@@ -567,65 +563,69 @@ describe("Container tests", function () {
     });
   });
 
-  describe("Container with named dependencies tests", function () {
-    const myFactoryNamedDependencyValue = faker.lorem.word();
-    const myFactoryNamedDependantValue = faker.lorem.word();
+  describe("Container with identifiable dependencies tests", function () {
+    const myFactoryIdentifiableDependencyValue = faker.lorem.word();
+    const myFactoryIdentifiableDependantValue = faker.lorem.word();
 
-    class MyFactoryNamedDependency implements Factory<string> {
+    class MyFactoryIdentifiableDependency implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
-      create = createFactoryMethod((): string => myFactoryNamedDependencyValue);
+      readonly id = this.constructor.name;
+      create = createFactoryMethod(
+        (): string => myFactoryIdentifiableDependencyValue,
+      );
     }
 
-    class MyFactoryNamedDependant implements Factory<string> {
+    class MyFactoryIdentifiableDependant implements Factory<string> {
       readonly isFactory = true;
-      readonly name = this.constructor.name;
-      protected readonly dependency: MyFactoryNamedDependency;
+      readonly id = this.constructor.name;
+      protected readonly dependency: MyFactoryIdentifiableDependency;
 
       constructor(
         params?: CreationDependencies<{
-          MyFactoryNamedDependency: MyFactoryNamedDependency;
+          MyFactoryIdentifiableDependency: MyFactoryIdentifiableDependency;
         }>,
       ) {
         if (params?.dependencies) {
-          this.dependency = params.dependencies.MyFactoryNamedDependency;
+          this.dependency = params.dependencies.MyFactoryIdentifiableDependency;
         } else {
           throw new Error("Invalid dependencies");
         }
 
         if (!this.dependency) {
-          throw new Error("Invalid MyFactoryNamedDependency dependency");
+          throw new Error("Invalid MyFactoryIdentifiableDependency dependency");
         }
       }
 
-      create = createFactoryMethod((): string => myFactoryNamedDependantValue);
+      create = createFactoryMethod(
+        (): string => myFactoryIdentifiableDependantValue,
+      );
 
-      get dep(): MyFactoryNamedDependency {
+      get dep(): MyFactoryIdentifiableDependency {
         return this.dependency;
       }
     }
 
     beforeAll(function () {
-      Container.I.register(MyFactoryNamedDependency);
-      Container.I.register(MyFactoryNamedDependant, {
-        dependencies: ["MyFactoryNamedDependency"],
+      Container.I.register(MyFactoryIdentifiableDependency);
+      Container.I.register(MyFactoryIdentifiableDependant, {
+        dependencies: ["MyFactoryIdentifiableDependency"],
       });
     });
 
     it("test register item class", function () {
-      expect(Container.I.get(MyFactoryNamedDependency)).toBeTruthy();
-      expect(Container.I.get(MyFactoryNamedDependant)).toBeTruthy();
-      expect(Container.I.get(MyFactoryNamedDependant)?.dep).toBe(
-        Container.I.get(MyFactoryNamedDependency),
+      expect(Container.I.get(MyFactoryIdentifiableDependency)).toBeTruthy();
+      expect(Container.I.get(MyFactoryIdentifiableDependant)).toBeTruthy();
+      expect(Container.I.get(MyFactoryIdentifiableDependant)?.dep).toBe(
+        Container.I.get(MyFactoryIdentifiableDependency),
       );
     });
 
     it("test items values", function () {
-      expect(Container.I.get(MyFactoryNamedDependency)?.create()).toBe(
-        myFactoryNamedDependencyValue,
+      expect(Container.I.get(MyFactoryIdentifiableDependency)?.create()).toBe(
+        myFactoryIdentifiableDependencyValue,
       );
-      expect(Container.I.get(MyFactoryNamedDependant)?.create()).toBe(
-        myFactoryNamedDependantValue,
+      expect(Container.I.get(MyFactoryIdentifiableDependant)?.create()).toBe(
+        myFactoryIdentifiableDependantValue,
       );
     });
   });

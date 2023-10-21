@@ -26,7 +26,7 @@ export class Container implements ContainerSpec {
   protected static instance: LazyInstance<ContainerSpec> = new LazyInstance(
     () => (Container.specImpl ??= new Container()),
     {
-      name: "Container",
+      id: "Container",
     },
   );
 
@@ -70,57 +70,57 @@ export class Container implements ContainerSpec {
     creator: Creator<T, D, A>,
     options?: RegistrationOptions<unknown>,
   ): SimpleItemId {
-    const actualName = options?.name ?? creator.name;
+    const id = options?.id ?? creator.name;
     const actualOptions: RegistrationOptions<unknown> = {
       ...defaultItemRegistrationOptions,
       ...options,
     };
-    if (this.items[actualName]) {
-      throw new Error(`Item '${actualName?.toString()}' already registered`);
+    if (this.items[id]) {
+      throw new Error(`Item '${id?.toString()}' already registered`);
     }
 
-    this.items[actualName] = {
+    this.items[id] = {
       creator: creator as Creator,
       options: actualOptions,
     };
-    return actualName;
+    return id;
   }
 
-  unregister<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId {
-    const name = Container.#getName(id);
-    if (this.items[name]) {
-      this.items[name] = undefined;
-      return name;
+  unregister<T, D extends Items, A>(itemId: ItemId<T, D, A>): SimpleItemId {
+    const id = Container.#getId(itemId);
+    if (this.items[id]) {
+      this.items[id] = undefined;
+      return id;
     }
-    throw new Error(`Item '${name?.toString()}' not registered`);
+    throw new Error(`Item '${id?.toString()}' not registered`);
   }
 
   getAll(ids: ItemId<unknown, never, never>[], options?: ExistsConfig): Items {
     const resolvedItems: Items = {};
 
-    ids.forEach((id) => {
-      const name = Container.#getName(id);
-      const resolvedDependency = this.get(name, options);
+    ids.forEach((itemId) => {
+      const id = Container.#getId(itemId);
+      const resolvedDependency = this.get(id, options);
       if (resolvedDependency) {
-        resolvedItems[name] = resolvedDependency;
+        resolvedItems[id] = resolvedDependency;
       } else {
-        resolvedItems[name] = new ContainerItemNotFoundError(name?.toString());
+        resolvedItems[id] = new ContainerItemNotFoundError(id?.toString());
       }
     });
     return resolvedItems;
   }
 
-  get<T>(id: ItemId<T>, options?: ExistsConfig): T | null {
-    const name = Container.#getName(id);
+  get<T>(itemId: ItemId<T>, options?: ExistsConfig): T | null {
+    const id = Container.#getId(itemId);
 
-    const meta = this.items[name];
+    const meta = this.items[id];
     if (meta) {
       return this.#instantiate(meta) as T;
     }
 
     const checkExists = options?.checkExists ?? this.config.checkExists;
     if (checkExists) {
-      throw new Error(`Item '${name?.toString()}' not registered`);
+      throw new Error(`Item '${id?.toString()}' not registered`);
     }
 
     return null;
@@ -164,7 +164,7 @@ export class Container implements ContainerSpec {
     return meta.instance;
   }
 
-  static #getName<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId {
-    return typeof id === "string" ? id : typeof id === "symbol" ? id : id.name;
+  static #getId<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId {
+    return typeof id === "string" || typeof id === "symbol" ? id : id.name;
   }
 }

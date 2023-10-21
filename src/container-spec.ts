@@ -1,4 +1,4 @@
-export interface Constructor<
+export interface FactoryConstructor<
   T = unknown,
   D extends Items = Items,
   A = unknown,
@@ -38,7 +38,7 @@ export type Creator<
   T = unknown,
   D extends Items | never = Items,
   A = unknown | never,
-> = Constructor<T, D, A> | FactoryMethod<T, D, A>;
+> = FactoryConstructor<T, D, A> | FactoryMethod<T, D, A>;
 
 export type Items = Record<SimpleItemId, unknown>;
 
@@ -71,7 +71,7 @@ export interface ItemRegister<T, D extends Items, A> {
 export type ItemsRegister = ItemRegister<unknown, never, never>[];
 
 export interface RegistrationOptions<A> {
-  name?: SimpleItemId;
+  id?: SimpleItemId;
   singleton?: boolean;
   dependencies?: ItemId[];
   args?: A;
