@@ -3,6 +3,11 @@
 *
 
 
+# 4.1.0 (2023-10-21)
+
+* BREAK: refactor from item name to item id
+
+
 # 4.0.0 (2023-10-21)
 
 * fix: add support to symbol

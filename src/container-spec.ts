@@ -86,7 +86,7 @@ export interface ContainerSpec {
   ): SimpleItemId;
   unregister<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId;
   getAll(ids: ItemId<unknown, never, never>[], options?: ExistsConfig): Items;
-  get<T, D extends Items, A>(
+  get<T, D extends Items = Items, A = unknown>(
     id: ItemId<T, D, A>,
     options?: ExistsConfig,
   ): T | null;
