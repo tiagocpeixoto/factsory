@@ -3,10 +3,11 @@
 *
 
 
-# 3.3.1 (2023-10-21)
+# 4.0.0 (2023-10-21)
 
 * fix: add support to symbol
-* chore: update validate GitHub actions workflow
+* chore: remove Node v14 from validate GitHub actions workflow 
+* BREAK: drop support to Node v14
 
 
 # 3.3.0 (2023-10-21)
