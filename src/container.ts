@@ -8,20 +8,10 @@ import {
   Items,
   ItemsRegister,
   RegistrationOptions,
+  SimpleItemId,
 } from "./container-spec";
+import { ContainerItemNotFoundError } from "./errors/container-item-not-found-error";
 import { LazyInstance } from "./lazy-instance";
-
-export class ContainerItemNotFoundError extends Error {
-  constructor(
-    public readonly containerItemName: string,
-    message?: string,
-  ) {
-    super(message);
-    // see: www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html
-    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
-    this.name = ContainerItemNotFoundError.name; // stack traces display correctly now
-  }
-}
 
 export const defaultItemRegistrationOptions: RegistrationOptions<unknown> = {
   singleton: true,
@@ -41,7 +31,7 @@ export class Container implements ContainerSpec {
   );
 
   readonly items: {
-    [k: string]: ItemMeta | undefined;
+    [k: SimpleItemId]: ItemMeta | undefined;
   } = {};
   readonly config: ContainerConfig = defaultContainerConfig;
 
@@ -96,13 +86,13 @@ export class Container implements ContainerSpec {
     return actualName;
   }
 
-  unregister<T, D extends Items, A>(id: ItemId<T, D, A>): string {
+  unregister<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId {
     const name = Container.#getName(id);
     if (this.items[name]) {
       this.items[name] = undefined;
       return name;
     }
-    throw new Error(`Item '${name}' not registered`);
+    throw new Error(`Item '${name?.toString()}' not registered`);
   }
 
   getAll(ids: ItemId<unknown, never, never>[], options?: ExistsConfig): Items {
@@ -114,7 +104,7 @@ export class Container implements ContainerSpec {
       if (resolvedDependency) {
         resolvedItems[name] = resolvedDependency;
       } else {
-        resolvedItems[name] = new ContainerItemNotFoundError(name);
+        resolvedItems[name] = new ContainerItemNotFoundError(name?.toString());
       }
     });
     return resolvedItems;
@@ -130,7 +120,7 @@ export class Container implements ContainerSpec {
 
     const checkExists = options?.checkExists ?? this.config.checkExists;
     if (checkExists) {
-      throw new Error(`Item '${name}' not registered`);
+      throw new Error(`Item '${name?.toString()}' not registered`);
     }
 
     return null;
@@ -174,7 +164,7 @@ export class Container implements ContainerSpec {
     return meta.instance;
   }
 
-  static #getName<T, D extends Items, A>(id: ItemId<T, D, A>): string {
-    return typeof id === "string" ? id : id.name;
+  static #getName<T, D extends Items, A>(id: ItemId<T, D, A>): SimpleItemId {
+    return typeof id === "string" ? id : typeof id === "symbol" ? id : id.name;
   }
 }

@@ -3,12 +3,13 @@ import chai from "chai";
 import chaiLike from "chai-like";
 import chaiThings from "chai-things";
 import { mock } from "jest-mock-extended";
-import { Container, ContainerItemNotFoundError } from "../container";
+import { Container } from "../container";
 import {
   ContainerSpec,
   CreationArguments,
   CreationDependencies,
 } from "../container-spec";
+import { ContainerItemNotFoundError } from "../errors/container-item-not-found-error";
 import { createFactoryMethod, Factory, SimpleFactory } from "../factory";
 
 describe("Container tests", function () {
